@@ -6,6 +6,7 @@ Dies ist das Git Repository für die **Projektarbeit/Bachlorarbeit** von **Andre
 
 Inhalt dieses Projektes ist eine auf dem Framework Flutter basierende App, welche es mobilen Geräten erlaubt die Arbeitsstunden in der Firma Tribeka festzuhalten.  
 **Wichtig ist hierbei, dass es zwingend notwendig ist Zugang zu einem existierenden Account zu haben.** Da keine API zur Verfügung steht wird über die App mit dem Webserver kommuniziert, wobei die Response des Servers von der App analysiert wird. Mittels Web-Scraping werden die relevanten Daten extrahiert und zu leicht bearbeitbaren Objekten umgewandelt.
+Hinweis: Dieses Projekt befindet sich noch in der Entwicklungsphase und es existiert noch keine offizielle Testversion.
 
 **Ziel** dieses Projektes ist es, das Eintragen der Arbeitsstunden so einfach und schnell wie möglich abzuwickeln. Aus diesem Grund ist es möglich innerhalb der App selbst Vorlagen abzuspeichern, wodurch der Benutzer seine Arbeitszeiten innerhalb von wenigen Sekunden aufzeichnen kann.
 
