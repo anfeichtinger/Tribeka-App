@@ -18,12 +18,12 @@ class Session {
 
   // Basic functionality
   static Dio _dio;
-  Response _response;
+  static Response _response;
 
   Session.internal() {
     _dio = Dio();
-    _dio.options.contentType = ContentType.parse(
-        "application/x-www-form-urlencoded; charset=iso-8859-1");
+    _dio.options.contentType =
+        ContentType.parse("application/x-www-form-urlencoded; charset=utf-8");
     _dio.options.responseType = ResponseType.plain;
     _dio.interceptors.add(CookieManager(CookieJar()));
     //_dio.interceptors.add(LogInterceptor(responseBody: false));
