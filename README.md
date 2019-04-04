@@ -12,12 +12,12 @@ Hinweis: Dieses Projekt befindet sich in der Beta-Phase. Alle Features sollten b
 
 Abgesehen von Flutter und Dart werden folgende Dependencies verwendet:
 
-* html: für das Parsen der HTML Response und somit für das Web-Scraping.
-* dio: als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
-* flutter_secure_storage: um Daten verschlüsselt zu speichern z.B für das Autologin.
-* intl: für die Übersetzung der Namen der Monate.
-* flutter_picker: für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
-* flutter_launcher_icons: um das Launcher Icon zu generieren.
+* **html:** für das Parsen der HTML Response und somit für das Web-Scraping.
+* **dio:** als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
+* **flutter_secure_storage:** um Daten verschlüsselt zu speichern z.B für das Autologin.
+* **intl:** für die Übersetzung der Namen der Monate.
+* **flutter_picker:** für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
+* **flutter_launcher_icons:** um das Launcher Icon zu generieren.
 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.
