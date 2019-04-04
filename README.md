@@ -19,6 +19,13 @@ Abgesehen von Flutter und Dart werden folgende Dependencies verwendet:
 * flutter_picker: für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
 * flutter_launcher_icons: um das Launcher Icon zu generieren.
 
+## Screenshots
+Alle Screenshots finden sich im "Screenshots" Verzeichnis.
+
+Login Bildschirm                                 |  Monatsübersicht                           |  Leerer Monat
+:-----------------------------------------------:|:------------------------------------------:|:------------------------------------------------------:
+![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month.png)  |  ![Empty Month Screen](./Screenshots/empty_month.png)
+
 ## Wie kann ich das Projekt öffnen und bearbeiten?
 
 Es wird sowohl **Android Studio** mit zwei **Plugins (Dart** und **Flutter)** benötigt, sowie das **Framework Flutter**. Alle Teile funktioneren auf Windows, Linux und Mac OSX.
