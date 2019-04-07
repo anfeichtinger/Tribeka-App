@@ -21,7 +21,11 @@ class Scrapper {
           .attributes
           .values
           .elementAt(0);
-      return true;
+      if (globals.user.place == 'Krank') {
+        return false;
+      } else {
+        return true;
+      }
     } catch (e) {
       return false;
     }
@@ -33,6 +37,33 @@ class Scrapper {
       return true;
     } else {
       return false;
+    }
+  }
+
+  double _hoursAsDouble(String hour) {
+    List<String> splitted = hour.split(',');
+    int main = int.parse(splitted[0]);
+    int comma = int.parse(splitted[1]);
+
+    return double.parse('$main.$comma');
+  }
+
+  String _getFullWeekday(String shortWeekday) {
+    switch (shortWeekday) {
+      case 'mo':
+        return 'Montag';
+      case 'di':
+        return 'Dienstag';
+      case 'mi':
+        return 'Mittwoch';
+      case 'do':
+        return 'Donnerstag';
+      case 'fr':
+        return 'Freitag';
+      case 'sa':
+        return 'Samstag';
+      default:
+        return 'Sonntag';
     }
   }
 
@@ -105,34 +136,5 @@ class Scrapper {
       }
     }
     return 'error';
-  }
-
-  double _hoursAsDouble(String hour) {
-    List<String> splitted = hour.split(',');
-    int main = int.parse(splitted[0]);
-    int comma = int.parse(splitted[1]);
-
-    return double.parse('$main.$comma');
-  }
-
-  String _getFullWeekday(String shortWeekday) {
-    switch (shortWeekday) {
-      case 'mo':
-        return 'Montag';
-      case 'di':
-        return 'Dienstag';
-      case 'mi':
-        return 'Mittwoch';
-      case 'do':
-        return 'Donnerstag';
-      case 'fr':
-        return 'Freitag';
-      case 'sa':
-        return 'Samstag';
-      case 'so':
-        return 'Sonntag';
-      default:
-        return '';
-    }
   }
 }

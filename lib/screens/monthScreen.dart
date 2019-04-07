@@ -39,25 +39,22 @@ class MonthScreenState extends State<MonthScreen> {
   bool _loading = true;
   bool _monthEditable = false;
 
+  Future<Null> _checkLoginType() async {
+    if (_automatic) {
+      await _session.autoLogin(context);
+      _loadMonthData(_selectedTime.month, _selectedTime.year);
+    } else {
+      _loadMonthData(_selectedTime.month, _selectedTime.year);
+    }
+  }
+
   @override
   void initState() {
     initializeDateFormatting();
     dateFormat = DateFormat('MMMM yyyy', 'de');
 
     super.initState();
-
-    if (_automatic) {
-      _session.autoLogin(context).then((nullValue) {
-        _loadMonthData(_selectedTime.month, _selectedTime.year);
-      });
-    } else {
-      _loadMonthData(_selectedTime.month, _selectedTime.year);
-    }
-  }
-
-  bool _getIsMonthEditable() {
-    _monthEditable = _session.isMonthEditable();
-    return _monthEditable;
+    _checkLoginType();
   }
 
   Future<Null> _loadMonthData(int _month, int _year) async {
@@ -66,14 +63,11 @@ class MonthScreenState extends State<MonthScreen> {
       _monthEditable = false;
       _loading = true;
     });
-    _session.scrapShiftsFromMonth(_month, _year).then((list) {
-      _shifts = list;
-    }).whenComplete(() {
-      bool edit = _getIsMonthEditable();
-      setState(() {
-        _loading = false;
-        _monthEditable = edit;
-      });
+    _shifts = await _session.scrapShiftsFromMonth(_month, _year);
+    bool edit = _session.isMonthEditable();
+    setState(() {
+      _loading = false;
+      _monthEditable = edit;
     });
   }
 
@@ -133,9 +127,9 @@ class MonthScreenState extends State<MonthScreen> {
               FlatButton(
                   child: Text("JA"),
                   onPressed: () {
-                    _session.logout();
                     Navigator.of(context).pushNamedAndRemoveUntil(
                         '/Login', (Route<dynamic> route) => false);
+                    _session.logout();
                   })
             ],
           );
@@ -171,9 +165,9 @@ class MonthScreenState extends State<MonthScreen> {
                         child: Text('JA'),
                         onPressed: snapshot.hasData
                             ? () async {
+                                Navigator.pop(context);
                                 await _session.finishMonth(
                                     _selectedTime.month, _selectedTime.year);
-                                Navigator.pop(context);
                                 _loadMonthData(
                                     _selectedTime.month, _selectedTime.year);
                               }
@@ -185,31 +179,6 @@ class MonthScreenState extends State<MonthScreen> {
           }).whenComplete(() {
         controller.close();
       });
-      /*showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8))),
-            title: Text("Monat fertig stellen"),
-            content: Text(
-                "Bist du dir sicher, dass du diesen Monat fertigstellen willst?\n\nDies kann nicht rückgängig gemacht werden!"),
-            actions: [
-              FlatButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("ABBRECHEN")),
-              FlatButton(
-                  child: Text("JA"),
-                  onPressed: () async {
-                    await _session.finishMonth(
-                        _selectedTime.month, _selectedTime.year);
-                    Navigator.pop(context);
-                    _loadMonthData(_selectedTime.month, _selectedTime.year);
-                  })
-            ],
-          );
-        },
-      );*/
     }
 
     _showCallInSickPrompt() {
@@ -264,8 +233,8 @@ class MonthScreenState extends State<MonthScreen> {
               FlatButton(
                   child: Text("SENDEN"),
                   onPressed: () async {
-                    await _session.callInSick(_selectedTime, from, to);
                     Navigator.pop(context);
+                    await _session.callInSick(_selectedTime, from, to);
                     _loadMonthData(_selectedTime.month, _selectedTime.year);
                   })
             ],
@@ -310,10 +279,8 @@ class MonthScreenState extends State<MonthScreen> {
     );
 
     Future<Null> _deleteCallback(Shift shift) async {
-      Future.value(await _session.removeShift(_selectedTime, shift))
-          .whenComplete(() {
-        return _loadMonthData(_selectedTime.month, _selectedTime.year);
-      });
+      await _session.removeShift(_selectedTime, shift);
+      return await _loadMonthData(_selectedTime.month, _selectedTime.year);
     }
 
     void _showDeletePrompt(Shift shift) {
@@ -327,8 +294,6 @@ class MonthScreenState extends State<MonthScreen> {
                   title: Text("Dienst löschen"),
                   content: RichText(
                     text: TextSpan(
-                      // Note: Styles for TextSpans must be explicitly defined.
-                      // Child text spans will inherit styles from parent
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -351,8 +316,8 @@ class MonthScreenState extends State<MonthScreen> {
                     FlatButton(
                         child: Text("JA"),
                         onPressed: () {
-                          _deleteCallback(shift);
                           Navigator.pop(context);
+                          _deleteCallback(shift);
                         })
                   ]);
             });
@@ -395,7 +360,8 @@ class MonthScreenState extends State<MonthScreen> {
                           itemBuilder: (BuildContext context, int index) {
                             bool _last = index == _shifts.length;
                             return _last
-                                ? MonthSummaryRow(_session.getHoursInMonth())
+                                ? MonthSummaryRow(
+                                    _session.getTotalHoursInMonth())
                                 : ShiftRow(
                                     _shifts.elementAt(index), _selectedTime,
                                     (time, shift) async {
