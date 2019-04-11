@@ -401,15 +401,13 @@ class AddShiftScreenState extends State<AddShiftScreen>
         icon: Icon(Icons.check),
         label: Text('Senden'),
         onPressed: () {
-          if (Validator.validShift(_shift)) {
+          if (Validator.validateShift(_shift)) {
             _validationController.reverse().then((v) {
               setState(() {
                 _hasError = false;
               });
             });
-            globals.session
-                .sendShift(_args.time.month, _args.time.year, _shift)
-                .then((result) {
+            globals.session.sendShift(_args.time, _shift).then((result) {
               _dataSent = true;
               Navigator.pop(context, _dataSent);
             });
@@ -437,7 +435,7 @@ class AddShiftScreenState extends State<AddShiftScreen>
               icon: Icon(Icons.save),
               tooltip: "Als neue Vorlage speichern",
               onPressed: () {
-                if (Validator.validShift(_shift) &&
+                if (Validator.validateShift(_shift) &&
                     _commentController.text.isNotEmpty) {
                   _validationController.reverse().then((v) {
                     setState(() {
@@ -455,7 +453,7 @@ class AddShiftScreenState extends State<AddShiftScreen>
         ]));
 
     return Scaffold(
-        appBar: CustomAppBar.get,
+        appBar: CustomAppBar.dark,
         bottomNavigationBar: _bottomNavBar,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: _showFab ? _fab : null,

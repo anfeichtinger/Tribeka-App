@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_picker/Picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:tribeka/screens/AddShiftScreen.dart';
 import 'package:tribeka/util/AddShiftScreenArgs.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
@@ -42,9 +43,9 @@ class MonthScreenState extends State<MonthScreen> {
   Future<Null> _checkLoginType() async {
     if (_automatic) {
       await _session.autoLogin(context);
-      _loadMonthData(_selectedTime.month, _selectedTime.year);
+      _loadMonthData();
     } else {
-      _loadMonthData(_selectedTime.month, _selectedTime.year);
+      _loadMonthData();
     }
   }
 
@@ -57,13 +58,13 @@ class MonthScreenState extends State<MonthScreen> {
     _checkLoginType();
   }
 
-  Future<Null> _loadMonthData(int _month, int _year) async {
+  Future<Null> _loadMonthData() async {
     _shifts.clear();
     setState(() {
       _monthEditable = false;
       _loading = true;
     });
-    _shifts = await _session.scrapShiftsFromMonth(_month, _year);
+    _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
     bool edit = _session.isMonthEditable();
     setState(() {
       _loading = false;
@@ -73,11 +74,11 @@ class MonthScreenState extends State<MonthScreen> {
 
   // Navigator.push returns a Future that will complete after we call
   // Navigator.pop on the Selection Screen!
-  void _newShiftCallback(BuildContext context) async {
+  void _navigatorCallback(BuildContext context, String route) async {
     final result = await Navigator.of(context).pushNamed('/Month/AddShift',
         arguments: AddShiftScreenArgs(_selectedTime));
     if (result) {
-      _loadMonthData(_selectedTime.month, _selectedTime.year);
+      _loadMonthData();
     }
   }
 
@@ -96,7 +97,7 @@ class MonthScreenState extends State<MonthScreen> {
           viewportFraction: 0.25,
           onMonthChanged: (newTime) {
             _selectedTime = newTime;
-            _loadMonthData(newTime.month, newTime.year);
+            _loadMonthData();
           },
         ));
 
@@ -108,7 +109,9 @@ class MonthScreenState extends State<MonthScreen> {
           backgroundColor: Colors.grey[850],
           icon: Icon(Icons.add),
           label: Text('Dienst hinzufügen'),
-          onPressed: _monthEditable ? () => _newShiftCallback(context) : null,
+          onPressed: _monthEditable
+              ? () => _navigatorCallback(context, AddShiftScreen.routeName)
+              : null,
         ));
 
     _showLogoutPrompt() {
@@ -166,10 +169,8 @@ class MonthScreenState extends State<MonthScreen> {
                         onPressed: snapshot.hasData
                             ? () async {
                                 Navigator.pop(context);
-                                await _session.finishMonth(
-                                    _selectedTime.month, _selectedTime.year);
-                                _loadMonthData(
-                                    _selectedTime.month, _selectedTime.year);
+                                await _session.finishMonth(_selectedTime);
+                                _loadMonthData();
                               }
                             : null,
                       );
@@ -235,7 +236,7 @@ class MonthScreenState extends State<MonthScreen> {
                   onPressed: () async {
                     Navigator.pop(context);
                     await _session.callInSick(_selectedTime, from, to);
-                    _loadMonthData(_selectedTime.month, _selectedTime.year);
+                    _loadMonthData();
                   })
             ],
           );
@@ -278,54 +279,8 @@ class MonthScreenState extends State<MonthScreen> {
       ),
     );
 
-    Future<Null> _deleteCallback(Shift shift) async {
-      await _session.removeShift(_selectedTime, shift);
-      return await _loadMonthData(_selectedTime.month, _selectedTime.year);
-    }
-
-    void _showDeletePrompt(Shift shift) {
-      if (_monthEditable) {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8))),
-                  title: Text("Dienst löschen"),
-                  content: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                            text:
-                                'Bist du dir sicher, dass du den Dienst vom '),
-                        TextSpan(
-                            text: '${shift.day}.${_selectedTime.month} ',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: 'löschen willst?'),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    FlatButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text("ABBRECHEN")),
-                    FlatButton(
-                        child: Text("JA"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _deleteCallback(shift);
-                        })
-                  ]);
-            });
-      }
-    }
-
     return Scaffold(
-        appBar: CustomAppBar.get,
+        appBar: CustomAppBar.dark,
         backgroundColor: Colors.grey[100],
         floatingActionButton: _fab,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -362,11 +317,8 @@ class MonthScreenState extends State<MonthScreen> {
                             return _last
                                 ? MonthSummaryRow(
                                     _session.getTotalHoursInMonth())
-                                : ShiftRow(
-                                    _shifts.elementAt(index), _selectedTime,
-                                    (time, shift) async {
-                                    _showDeletePrompt(shift);
-                                  });
+                                : ShiftRow(_shifts.elementAt(index),
+                                    _selectedTime, _monthEditable, _loadMonthData);
                           }),
             )
           ],

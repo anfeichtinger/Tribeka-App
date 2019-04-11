@@ -106,7 +106,7 @@ class Session {
   }
 
   // When there is a Session Timeout, automatically login and go into correct month again
-  Future<Null> _loginOnExpiration(int month, int year) async {
+  Future<Null> _loginOnExpiration() async {
     final _email = await _storage.read(key: 'email');
     final _password = await _storage.read(key: 'password');
     try {
@@ -128,36 +128,37 @@ class Session {
   }
 
   // When there is no place search for one in current month. If there is still no place, look at previous month
+  // At least one Shift has to be present on the Website
   void _searchUserPlace(int _month, int _year) {
     if (globals.user.place == null || globals.user.place.isEmpty) {
       if (!_scrapper.generateUserPlace(_response)) {
         int _newMonth = _month - 1;
         if (_newMonth > 0) {
-          _enterMonth(_newMonth, _year).then((v) {
+          _enterMonth(DateTime(_year, _newMonth)).then((v) {
             _scrapper.generateUserPlace(_response);
           });
         } else {
-          _enterMonth(12, _year).then((v) {
+          _enterMonth(DateTime(_year - 1, 12)).then((v) {
             _scrapper.generateUserPlace(_response);
           }).then((v) {
-            _enterMonth(_month, _year);
+            _enterMonth(DateTime(_year, _month));
           });
         }
       }
     }
   }
 
-  Future<Null> _enterMonth(int month, int year) async {
+  Future<Null> _enterMonth(DateTime selectedTime) async {
     try {
       return await _post(baseURL + 'stunden/' + 'Default.asp', {
         "pEmpId": globals.user.id,
-        "pMonth": month.toString(),
-        "pYear": year.toString(),
+        "pMonth": selectedTime.month.toString(),
+        "pYear": selectedTime.year.toString(),
         "submit": "jetzt zeigen"
       });
     } on DioError {
-      await _loginOnExpiration(month, year);
-      return await _enterMonth(month, year);
+      await _loginOnExpiration();
+      return await _enterMonth(selectedTime);
     }
   }
 
@@ -166,10 +167,10 @@ class Session {
     return _scrapper.isMonthEditable(_response);
   }
 
-  Future<List<Shift>> scrapShiftsFromMonth(int month, int year) async {
-    await _enterMonth(month, year);
+  Future<List<Shift>> scrapShiftsFromMonth(DateTime selectedTime) async {
+    await _enterMonth(selectedTime);
     List<Shift> _shifts = _scrapper.scrapShiftsFromMonth(_response);
-    _searchUserPlace(month, year);
+    _searchUserPlace(selectedTime.month, selectedTime.year);
     return _shifts;
   }
 
@@ -185,12 +186,12 @@ class Session {
     debugPrint('DEBUG - Logged out');
   }
 
-  Future<Null> sendShift(int month, int year, Shift shift) async {
+  Future<Null> sendShift(DateTime selectedTime, Shift shift) async {
     try {
       return await _post(baseURL + 'stunden/' + 'Default.asp', {
         "pEmpId": globals.user.id,
-        "pYear": year.toString(),
-        "pMonth": month.toString(),
+        "pYear": selectedTime.year.toString(),
+        "pMonth": selectedTime.month.toString(),
         "pWorkDay": shift.day,
         "pWorkFrom": shift.workFrom,
         "pWorkTo": shift.workTo,
@@ -201,29 +202,29 @@ class Session {
         "submit": "speichern"
       });
     } on DioError {
-      await _loginOnExpiration(month, year);
-      return await sendShift(month, year, shift);
+      await _loginOnExpiration();
+      return await sendShift(selectedTime, shift);
     }
   }
 
-  Future<Null> finishMonth(int month, int year) async {
+  Future<Null> finishMonth(DateTime selectedTime) async {
     try {
       return await _post(baseURL + 'stunden/' + 'Default.asp', {
         "pEmpId": globals.user.id,
-        "pYear": year.toString(),
-        "pMonth": month.toString(),
+        "pYear": selectedTime.year.toString(),
+        "pMonth": selectedTime.month.toString(),
         "submit": "monat jetzt fertigstellen"
       });
     } on DioError {
-      await _loginOnExpiration(month, year);
-      return await finishMonth(month, year);
+      await _loginOnExpiration();
+      return await finishMonth(selectedTime);
     }
   }
 
   Future<Null> removeShift(DateTime selectedTime, Shift shift) async {
     String _deleteValue;
     try {
-      await _enterMonth(selectedTime.month, selectedTime.year).whenComplete(() {
+      await _enterMonth(selectedTime).whenComplete(() {
         _deleteValue = _scrapper.getDeleteValue(shift, _response);
         _post(baseURL + 'stunden/' + 'Default.asp', {
           "$_deleteValue": 'l%F6schen',
@@ -233,9 +234,14 @@ class Session {
         });
       });
     } on DioError {
-      await _loginOnExpiration(selectedTime.month, selectedTime.year);
+      await _loginOnExpiration();
       return await removeShift(selectedTime, shift);
     }
+  }
+
+  Future<Null> updateShift(DateTime selectedTime, Shift shift) async {
+    await removeShift(selectedTime, shift);
+    await sendShift(selectedTime, shift);
   }
 
   Future<Null> callInSick(DateTime selectedTime, int from, int to) async {
@@ -249,7 +255,7 @@ class Session {
         "submit": "krankmeldung speichern"
       });
     } on DioError {
-      await _loginOnExpiration(selectedTime.month, selectedTime.year);
+      await _loginOnExpiration();
       return await callInSick(selectedTime, from, to);
     }
   }

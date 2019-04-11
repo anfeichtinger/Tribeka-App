@@ -79,7 +79,7 @@ class Validator {
     return true;
   }
 
-  static bool validShift(Shift shift) {
+  static bool validateShift(Shift shift) {
     if (_validWork(shift) && _validBreak(shift)) {
       return true;
     } else {

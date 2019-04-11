@@ -13,8 +13,40 @@ class Shift {
       this.place, this.comment,
       [this.hours, this.weekday]);
 
+  static Shift copy(Shift shift) {
+    return Shift(
+      shift.day,
+      shift.workFrom,
+      shift.workTo,
+      shift.breakFrom,
+      shift.breakTo,
+      shift.place,
+      shift.comment,
+      shift.hours,
+      shift.weekday,
+    );
+  }
+
   @override
   String toString() {
-    return "Weekday: $weekday, Day: $day, WorkFrom: $workFrom, WorkTo: $workTo, BreakFrom: $breakFrom, BreakTo: $breakTo, Place: $place, Comment: $comment";
+    return "\nWeekday: $weekday,\n Day: $day,\n WorkFrom: $workFrom,\n WorkTo: $workTo,\n BreakFrom: $breakFrom,\n BreakTo: $breakTo,\n Place: $place,\n Comment: $comment,\n $hours\n";
+  }
+
+  @override
+  bool operator ==(other) {
+    return this.hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode {
+    return day.hashCode +
+        workFrom.hashCode +
+        workTo.hashCode +
+        breakFrom.hashCode +
+        breakTo.hashCode +
+        place.hashCode +
+        comment.hashCode +
+        hours.hashCode +
+        weekday.hashCode;
   }
 }

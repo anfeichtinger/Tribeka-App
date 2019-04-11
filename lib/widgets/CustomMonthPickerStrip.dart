@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 const PageScrollPhysics _kPagePhysics = const PageScrollPhysics();
 
 const TextStyle _selectedTextStyle = const TextStyle(
-  // I only had to change some colors in order to match the Apps Theme
+  // I had to change some colors in order to match the Apps Theme
   color: const Color(0xFF000000),
   fontSize: 16.0,
   fontWeight: FontWeight.w600,
