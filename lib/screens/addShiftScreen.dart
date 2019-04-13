@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_picker/Picker.dart';
 import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tribeka/services/InitTimeGenerator.dart';
 import 'package:tribeka/services/Validator.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
@@ -241,7 +242,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
 
     final _dayTile = ListTile(
         onTap: () => _showPickerDate(context),
-        leading: Icon(Icons.today, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.calendarToday, color: Colors.grey[800]),
         title: Text('Kalendertag', style: TextStyle(fontSize: 16)),
         trailing: Text('${_shift.day}.',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
@@ -277,7 +278,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 ));
               });
         },
-        leading: Icon(Icons.work, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.briefcaseOutline, color: Colors.grey[800]),
         title: Text('Arbeit von', style: TextStyle(fontSize: 16)),
         trailing: Text(_shift.workFrom,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
@@ -352,7 +353,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 ));
               });
         },
-        leading: Icon(Icons.free_breakfast, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.coffeeOutline, color: Colors.grey[800]),
         title: Text('Pause von', style: TextStyle(fontSize: 16)),
         trailing: Text(_shift.breakFrom,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
@@ -401,7 +402,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             autofocus: false,
             decoration: InputDecoration(
               hintText: 'Kommentar',
-              icon: Icon(Icons.comment, color: Colors.grey[800]),
+              icon: Icon(MdiIcons.commentOutline, color: Colors.grey[800]),
               contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(32)),
@@ -419,7 +420,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
         ? FloatingActionButton.extended(
             elevation: 4.0,
             backgroundColor: _valid ? Colors.grey[850] : Colors.grey[600],
-            icon: Icon(Icons.cloud_upload),
+            icon: Icon(MdiIcons.cloudUploadOutline),
             label: Text('Senden'),
             onPressed: _valid
                 ? () async {
@@ -437,7 +438,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(MdiIcons.arrowLeft),
           onPressed: () {
             _dataSent = false;
             _valid = false;
@@ -446,7 +447,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
           tooltip: "Zurück",
         ),
         IconButton(
-            icon: Icon(Icons.save),
+            icon: Icon(MdiIcons.contentSaveOutline),
             onPressed: () async {
               if (_valid) {
                 _showAddTemplatePrompt();
@@ -475,7 +476,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                     children: <Widget>[
                       SizedBox(height: 34),
                       _header,
-                      SizedBox(height: 24),
+                      SizedBox(height: 22),
                       _dayTile,
                       SizedBox(height: 9.5),
                       _divider,

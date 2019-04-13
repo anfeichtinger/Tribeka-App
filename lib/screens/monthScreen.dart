@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_picker/Picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tribeka/screens/AddShiftScreen.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
@@ -112,7 +113,7 @@ class MonthScreenState extends State<MonthScreen> {
         child: FloatingActionButton.extended(
           elevation: 4.0,
           backgroundColor: Colors.grey[850],
-          icon: Icon(Icons.add),
+          icon: Icon(MdiIcons.plus),
           label: Text('Dienst hinzufügen'),
           onPressed: _monthEditable ? () => _addShiftCallback(context) : null,
         ));
@@ -124,7 +125,12 @@ class MonthScreenState extends State<MonthScreen> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8))),
-            title: Text("Abmelden"),
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Abmelden"),
+                  Icon(MdiIcons.arrowCollapseLeft)
+                ]),
             content: Text("Bist du dir sicher, dass du dich abmelden willst?"),
             actions: [
               FlatButton(
@@ -161,7 +167,12 @@ class MonthScreenState extends State<MonthScreen> {
             return AlertDialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8))),
-              title: Text("Monat fertig stellen"),
+              title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Monat fertig stellen"),
+                    Icon(MdiIcons.calendarCheck)
+                  ]),
               content: StreamBuilder(
                   stream: controller.stream,
                   builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
@@ -208,7 +219,8 @@ class MonthScreenState extends State<MonthScreen> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8))),
-            title: Text("Krank melden"),
+            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[Text("Krank melden"), Icon(MdiIcons.pill)]),
             content: Container(
               height: 198,
               child: Column(
@@ -271,7 +283,7 @@ class MonthScreenState extends State<MonthScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(
-            icon: Icon(Icons.reply),
+            icon: Icon(MdiIcons.arrowCollapseLeft),
             onPressed: () => _showLogoutPrompt(),
             tooltip: "Abmelden",
           ),
@@ -283,13 +295,13 @@ class MonthScreenState extends State<MonthScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(Icons.mood_bad),
+                    icon: Icon(MdiIcons.pill),
                     onPressed:
                         _monthEditable ? () => _showCallInSickPrompt() : null,
                     tooltip: "Krank melden",
                   ),
                   IconButton(
-                    icon: Icon(Icons.check),
+                    icon: Icon(MdiIcons.calendarCheck),
                     onPressed:
                         _monthEditable ? () => _showFinishMonthPrompt() : null,
                     tooltip: "Monat fertigstellen",

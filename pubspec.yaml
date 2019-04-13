@@ -14,6 +14,7 @@ dependencies:
   html: ^0.13.3+3
   flutter_secure_storage: ^3.1.2
   intl: ^0.15.8
+  material_design_icons_flutter: ^3.2.3595
   flutter_picker:
     git: git://github.com/yangyxd/flutter_picker.git
 
@@ -29,11 +30,6 @@ flutter_icons:
   ios: true
 
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
-  uses-material-design: true
 
   assets:
   - assets/

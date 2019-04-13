@@ -18,6 +18,7 @@ Abgesehen von Flutter und Dart werden folgende Dependencies verwendet:
 * [**intl:**](https://pub.dartlang.org/packages/intl) für die Übersetzung der Namen der Monate.
 * [**flutter_picker:**]() für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
 * [**flutter_launcher_icons:**](https://pub.dartlang.org/packages/flutter_picker/versions/1.0.2) um das Launcher Icon zu generieren.
+* [**material_design_icons_flutter:**](https://pub.dartlang.org/packages/material_design_icons_flutter) Um die Material Icons nutzen zu können (Bietet mehr Umfag als die in Flutter enthaltenen Material Icons)
 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.

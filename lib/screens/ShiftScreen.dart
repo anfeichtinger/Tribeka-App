@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tribeka/services/InitTimeGenerator.dart';
 import 'package:tribeka/services/Validator.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
@@ -194,7 +195,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                     });
               }
             : () {},
-        leading: Icon(Icons.work, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.briefcaseOutline, color: Colors.grey[800]),
         title: Text('Arbeit von', style: TextStyle(fontSize: 16)),
         trailing: Text(_newShift.workFrom,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
@@ -281,7 +282,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                     });
               }
             : () {},
-        leading: Icon(Icons.free_breakfast, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.coffeeOutline, color: Colors.grey[800]),
         title: Text('Pause von', style: TextStyle(fontSize: 16)),
         trailing: Text(_newShift.breakFrom,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
@@ -338,20 +339,20 @@ class ShiftScreenState extends State<ShiftScreen> {
             autofocus: false,
             decoration: InputDecoration(
               hintText: _editable ? 'Kommentar' : '',
-              icon: Icon(Icons.comment, color: Colors.grey[800]),
+              icon: Icon(MdiIcons.commentOutline, color: Colors.grey[800]),
               contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(32)),
             )));
 
     final _hoursTile = ListTile(
-        leading: Icon(Icons.hourglass_full, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.timerSand, color: Colors.grey[800]),
         title: Text('Stunden', style: TextStyle(fontSize: 16)),
         trailing: Text('${_newShift.hours} h',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
 
     final _placeTile = ListTile(
-        leading: Icon(Icons.place, color: Colors.grey[800]),
+        leading: Icon(MdiIcons.mapMarkerOutline, color: Colors.grey[800]),
         title: Text('Lokal', style: TextStyle(fontSize: 16)),
         trailing: Text(_newShift.place,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
@@ -371,7 +372,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                 backgroundColor: _modified
                     ? _valid ? Colors.grey[850] : Colors.grey[600]
                     : Colors.grey[600],
-                icon: Icon(Icons.check),
+                icon: Icon(MdiIcons.calendarEdit),
                 label: Text('Änderungen speichern'),
                 onPressed: _modified
                     ? _valid
@@ -392,7 +393,7 @@ class ShiftScreenState extends State<ShiftScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(MdiIcons.arrowLeft),
           onPressed: () {
             _dataSent = false;
             Navigator.pop(context, _dataSent);
@@ -401,7 +402,7 @@ class ShiftScreenState extends State<ShiftScreen> {
         ),
         _editable
             ? IconButton(
-                icon: Icon(Icons.delete_outline),
+                icon: Icon(MdiIcons.deleteOutline),
                 onPressed: () async {
                   await globals.session
                       .removeShift(_selectedTime, _initialShift);
