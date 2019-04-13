@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tribeka/services/Scraper.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
+import 'package:tribeka/util/Latin1Transformer.dart';
 import 'package:tribeka/util/Shift.dart';
 
 // Implementing the Singelton Pattern
@@ -22,11 +23,12 @@ class Session {
 
   Session.internal() {
     _dio = Dio();
-    _dio.options.contentType =
-        ContentType.parse("application/x-www-form-urlencoded; charset=utf-8");
+    _dio.options.contentType = ContentType.parse(
+        "application/x-www-form-urlencoded; charset=ISO-8859-1");
     _dio.options.responseType = ResponseType.plain;
     _dio.interceptors.add(CookieManager(CookieJar()));
     //_dio.interceptors.add(LogInterceptor(responseBody: false));
+    _dio.transformer = Latin1Transformer();
   }
 
   Future<Null> _get(String url) async {

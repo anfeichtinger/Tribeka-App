@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_picker/flutter_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_picker/Picker.dart';
+import 'package:intl/intl.dart';
+import 'package:tribeka/services/InitTimeGenerator.dart';
 import 'package:tribeka/services/Validator.dart';
-import 'package:tribeka/util/AddShiftListTileArgs.dart';
-import 'package:tribeka/util/AddShiftScreenArgs.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
 import 'package:tribeka/util/TagHandler.dart';
@@ -11,42 +12,68 @@ import 'package:tribeka/widgets/CustomAppBar.dart';
 import 'package:tribeka/widgets/CustomSelectableTags.dart';
 
 class AddShiftScreen extends StatefulWidget {
-  static final routeName = '/Month/AddShift';
+  final DateTime _selectedTime;
+  final List<int> _presentDates;
+
+  AddShiftScreen(this._selectedTime, this._presentDates);
 
   @override
-  State createState() => AddShiftScreenState();
+  State createState() {
+    return AddShiftScreenState(_selectedTime, _presentDates);
+  }
 }
 
-class AddShiftScreenState extends State<AddShiftScreen>
-    with TickerProviderStateMixin {
+class AddShiftScreenState extends State<AddShiftScreen> {
+  final List<int> _presentDates;
+  static DateTime _now;
+  static Shift _shift;
+  static List<Tag> _templates = [];
   static bool _dataSent = false;
-  static bool _hasError = false;
-  static String _dayText = DateTime.now().day.toString();
-  List<Tag> _templates = [];
-  Shift _shift = Shift(_dayText, '-', '-', '-', '-', globals.user.place, '');
-  final _commentController = TextEditingController();
+  static bool _valid = false;
+  static TextEditingController _commentController;
 
-  AnimationController _validationController;
-  Animation<Offset> _validationOffset;
+  AddShiftScreenState(DateTime _selectedTime, this._presentDates) {
+    _now =
+        DateTime(_selectedTime.year, _selectedTime.month, DateTime.now().day);
+    _shift =
+        Shift(_now.day.toString(), '-', '-', '-', '-', globals.user.place, '');
+    while (_presentDates.contains(int.parse(_shift.day))) {
+      _shift.day = (int.parse(_shift.day) + 1).toString();
+    }
+  }
+
+  void _checkValid() {
+    // Todo: Error messages so the user knows what is wrong
+    if (Validator.validateShift(_shift) &&
+        !_presentDates.contains(int.parse(_shift.day))) {
+      setState(() {
+        _valid = true;
+      });
+    } else {
+      setState(() {
+        _valid = false;
+      });
+    }
+  }
 
   @override
   void initState() {
-    _validationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 100));
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
+        .copyWith(statusBarIconBrightness: Brightness.dark));
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
 
-    _validationOffset =
-        Tween<Offset>(begin: Offset(0.0, -1.0), end: Offset.zero)
-            .animate(_validationController);
-
-    _hasError = false;
     _dataSent = false;
+    _valid = false;
 
     TagHandler().getTags().then((newList) {
       setState(() {
         _templates = newList;
       });
     });
+    _commentController = TextEditingController();
 
+    _commentController.text = _shift.comment;
     _commentController.addListener(() {
       _shift.comment = _commentController.text;
     });
@@ -54,56 +81,16 @@ class AddShiftScreenState extends State<AddShiftScreen>
     super.initState();
   }
 
-  Widget _buildValidationMsg() {
-    if (_hasError) {
-      return Align(
-          alignment: Alignment.topCenter,
-          child: SlideTransition(
-              position: _validationOffset,
-              child: Container(
-                  height: 45,
-                  width: double.infinity,
-                  color: Colors.red,
-                  padding: EdgeInsets.all(0.0),
-                  child: Center(
-                      child: Text('Bitte überprüfe deine Eingaben!',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0))))));
-    } else
-      return SizedBox(
-        height: 0,
-      );
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // We pass the month and year we are in
-    final AddShiftScreenArgs _args = ModalRoute.of(context).settings.arguments;
     // Hide the FAB when the keyboard is open to avoid clipping
     final bool _showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
-    final Color _iconColor = Colors.grey[800];
-
-    _showPickerDate(BuildContext context) {
-      Picker(
-          textStyle: TextStyle(fontSize: 24, color: Colors.black),
-          height: 200,
-          hideHeader: true,
-          columnPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-          adapter: DateTimePickerAdapter(
-            value: _args.time.day.toString() == _shift.day
-                ? _args.time
-                : DateTime(
-                    _args.time.year, _args.time.month, int.parse(_shift.day)),
-            customColumnType: [2],
-          ),
-          onSelect: (Picker picker, int i, List value) {
-            setState(() {
-              _shift.day = (value.last + 1).toString();
-            });
-          }).showModal(context);
-    }
 
     Widget _buildBottomPicker(Widget picker) {
       return Container(
@@ -127,208 +114,6 @@ class AddShiftScreenState extends State<AddShiftScreen>
       );
     }
 
-    ListTile _buildRow(DateTime initial, AddShiftListTileArgs args) {
-      return ListTile(
-          onTap: () {
-            args.callback(initial);
-            showCupertinoModalPopup(
-                context: context,
-                builder: (BuildContext context) {
-                  return _buildBottomPicker(CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.time,
-                    initialDateTime: initial,
-                    use24hFormat: true,
-                    minuteInterval: 15,
-                    onDateTimeChanged: (DateTime newDateTime) {
-                      args.callback(newDateTime);
-                    },
-                  ));
-                });
-          },
-          onLongPress: args.longCallback,
-          title: Text(args.label),
-          leading: Icon(args.iconData, color: _iconColor),
-          trailing: Text(
-            args.value,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ));
-    }
-
-    final _dayRow = ListTile(
-        onTap: () {
-          _showPickerDate(context);
-        },
-        onLongPress: () {},
-        title: Text('Kalendertag'),
-        leading: Icon(Icons.today, color: _iconColor),
-        trailing: Text(
-          '${_shift.day}.',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ));
-
-    DateTime _getInitialWorkFromTime() {
-      if (_shift.workFrom == '-') {
-        return DateTime(
-            _args.time.year, _args.time.month, _args.time.day, 12, 0);
-      } else {
-        return DateTime(
-            _args.time.year,
-            _args.time.month,
-            _args.time.day,
-            int.parse(_shift.workFrom.split(':')[0]),
-            int.parse(_shift.workFrom.split(':')[1]));
-      }
-    }
-
-    final _workFromRow = _buildRow(
-        _getInitialWorkFromTime(),
-        AddShiftListTileArgs(
-            label: 'Arbeit von',
-            iconData: Icons.work,
-            value: _shift.workFrom,
-            callback: (dateTime) {
-              setState(() {
-                _shift.workFrom =
-                    '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-              });
-            },
-            longCallback: () {
-              setState(() {
-                _shift.workFrom = '-';
-              });
-            }));
-
-    DateTime _getInitialWorkToTime() {
-      if (_shift.workTo == '-') {
-        return DateTime(
-            _args.time.year, _args.time.month, _args.time.day, 12, 0);
-      } else {
-        return DateTime(
-            _args.time.year,
-            _args.time.month,
-            _args.time.day,
-            int.parse(_shift.workTo.split(':')[0]),
-            int.parse(_shift.workTo.split(':')[1]));
-      }
-    }
-
-    final _workToRow = _buildRow(
-        _getInitialWorkToTime(),
-        AddShiftListTileArgs(
-            label: 'Arbeit bis',
-            iconData: null,
-            value: _shift.workTo,
-            callback: (dateTime) {
-              setState(() {
-                _shift.workTo =
-                    '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-              });
-            },
-            longCallback: () {
-              setState(() {
-                _shift.workTo = '-';
-              });
-            }));
-
-    DateTime _getInitialBreakFromTime() {
-      if (_shift.breakFrom == '-') {
-        return DateTime(
-            _args.time.year, _args.time.month, _args.time.day, 12, 0);
-      } else {
-        return DateTime(
-            _args.time.year,
-            _args.time.month,
-            _args.time.day,
-            int.parse(_shift.breakFrom.split(':')[0]),
-            int.parse(_shift.breakFrom.split(':')[1]));
-      }
-    }
-
-    final _breakFromRow = _buildRow(
-        _getInitialBreakFromTime(),
-        AddShiftListTileArgs(
-            label: 'Pause von',
-            iconData: Icons.free_breakfast,
-            value: _shift.breakFrom,
-            callback: (dateTime) {
-              setState(() {
-                _shift.breakFrom =
-                    '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-                switch (dateTime.minute) {
-                  case 0:
-                  case 15:
-                    setState(() {
-                      _shift.breakTo =
-                          '${dateTime.hour.toString().padLeft(2, '0')}:${(dateTime.minute + 30).toString().padLeft(2, '0')}';
-                    });
-                    break;
-                  case 30:
-                    setState(() {
-                      _shift.breakTo =
-                          '${(dateTime.hour + 1).toString().padLeft(2, '0')}:00';
-                    });
-                    break;
-                  case 45:
-                    setState(() {
-                      _shift.breakTo =
-                          '${(dateTime.hour + 1).toString().padLeft(2, '0')}:15';
-                    });
-                    break;
-                }
-              });
-            },
-            longCallback: () {
-              setState(() {
-                _shift.breakFrom = '-';
-              });
-            }));
-
-    DateTime _getInitialBreakToTime() {
-      if (_shift.breakTo == '-') {
-        return DateTime(
-            _args.time.year, _args.time.month, _args.time.day, 12, 0);
-      } else {
-        return DateTime(
-            _args.time.year,
-            _args.time.month,
-            _args.time.day,
-            int.parse(_shift.breakTo.split(':')[0]),
-            int.parse(_shift.breakTo.split(':')[1]));
-      }
-    }
-
-    final _breakToRow = _buildRow(
-        _getInitialBreakToTime(),
-        AddShiftListTileArgs(
-            label: 'Pause bis',
-            iconData: null,
-            value: _shift.breakTo,
-            callback: (dateTime) {
-              setState(() {
-                _shift.breakTo =
-                    '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-              });
-            },
-            longCallback: () {
-              setState(() {
-                _shift.breakTo = '-';
-              });
-            }));
-
-    final _comment = Padding(
-        padding: EdgeInsets.all(16),
-        child: TextField(
-            controller: _commentController,
-            keyboardType: TextInputType.text,
-            autofocus: false,
-            decoration: InputDecoration(
-              icon: Icon(Icons.comment, color: _iconColor),
-              hintText: 'Kommentar',
-              contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            )));
-
     _applyTemplate(Tag tag) async {
       tag.active = true;
       Shift shift = await TagHandler().getPersistedShift(tag.title);
@@ -347,21 +132,25 @@ class AddShiftScreenState extends State<AddShiftScreen>
           _shift.breakFrom = shift.breakFrom;
           _shift.breakTo = shift.breakTo;
         });
+        _checkValid();
       }
+    }
+
+    _addTag(String title) {
+      setState(() {
+        _templates.add(Tag(title: title));
+      });
+      TagHandler().persistTag(_shift, title);
     }
 
     Widget _getTagWidgets() {
       if (_templates.length == 0) {
-        return Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Column(children: <Widget>[
-              Image.asset('assets/no_template_found.png', height: 152),
-            ]));
+        return SizedBox(height: 0);
       } else {
         return SelectableTags(
           tags: _templates,
           backgroundContainer: Colors.transparent,
-          activeColor: _iconColor,
+          activeColor: Colors.grey[800],
           onPressed: (tag) {
             _applyTemplate(tag);
           },
@@ -375,110 +164,330 @@ class AddShiftScreenState extends State<AddShiftScreen>
       }
     }
 
-    _addTag() async {
-      setState(() {
-        _templates.add(Tag(title: _shift.comment));
-      });
-      await TagHandler().persistTag(_shift);
-      setState(() {
-        _commentController.clear();
-      });
-    }
-
-    Widget _templateContainer() {
-      return Column(children: <Widget>[
-        SizedBox(height: 6),
-        Text('Vorlagen',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        _getTagWidgets()
-      ]);
-    }
-
-    final _fab = FloatingActionButton.extended(
-        backgroundColor: Colors.grey[850],
-        elevation: 4.0,
-        icon: Icon(Icons.check),
-        label: Text('Senden'),
-        onPressed: () {
-          if (Validator.validateShift(_shift)) {
-            _validationController.reverse().then((v) {
-              setState(() {
-                _hasError = false;
-              });
-            });
-            globals.session.sendShift(_args.time, _shift).then((result) {
-              _dataSent = true;
-              Navigator.pop(context, _dataSent);
-            });
-          } else {
+    _showPickerDate(BuildContext context) {
+      Picker(
+          textStyle: TextStyle(fontSize: 24, color: Colors.black),
+          height: 200,
+          hideHeader: true,
+          columnPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          adapter: DateTimePickerAdapter(
+            value: _now.day.toString() == _shift.day
+                ? _now
+                : DateTime(_now.year, _now.month, int.parse(_shift.day)),
+            customColumnType: [2],
+          ),
+          onSelect: (Picker picker, int i, List value) {
             setState(() {
-              _hasError = true;
+              _shift.day = (value.last + 1).toString();
             });
-            _validationController.forward();
-          }
-        });
+            _checkValid();
+          }).showModal(context);
+    }
+
+    _showAddTemplatePrompt() async {
+      String _title = '';
+      final result = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8))),
+            title: Text("Vorlage benennen"),
+            content: TextField(autofocus: true, onChanged: (s) => _title = s),
+            actions: [
+              FlatButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text("ABBRECHEN")),
+              FlatButton(
+                  child: Text("JA"),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  })
+            ],
+          );
+        },
+      );
+      if (result) {
+        _addTag(_title);
+      }
+    }
+
+    final _header = Padding(
+        child: Text(DateFormat('MMMM, yyyy').format(_now),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        padding: EdgeInsets.symmetric(horizontal: 16));
+
+    final _dayTile = ListTile(
+        onTap: () => _showPickerDate(context),
+        leading: Icon(Icons.today, color: Colors.grey[800]),
+        title: Text('Kalendertag', style: TextStyle(fontSize: 16)),
+        trailing: Text('${_shift.day}.',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+
+    final _workFromTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.workFrom = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.workFrom(_now, _shift);
+          setState(() {
+            _shift.workFrom =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.workFrom =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: Icon(Icons.work, color: Colors.grey[800]),
+        title: Text('Arbeit von', style: TextStyle(fontSize: 16)),
+        trailing: Text(_shift.workFrom,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+
+    final _workToTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.workTo = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.workTo(_now, _shift);
+          setState(() {
+            _shift.workTo =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.workTo =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: Icon(null),
+        title: Text('Arbeit bis', style: TextStyle(fontSize: 16)),
+        trailing: Text(_shift.workTo,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+
+    final _breakFromTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.breakFrom = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.breakFrom(_now, _shift);
+          setState(() {
+            _shift.breakFrom =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.breakFrom =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    switch (newDateTime.minute) {
+                      case 0:
+                      case 15:
+                        setState(() {
+                          _shift.breakTo =
+                              '${newDateTime.hour.toString().padLeft(2, '0')}:${(newDateTime.minute + 30).toString().padLeft(2, '0')}';
+                        });
+                        break;
+                      case 30:
+                        setState(() {
+                          _shift.breakTo =
+                              '${(newDateTime.hour + 1).toString().padLeft(2, '0')}:00';
+                        });
+                        break;
+                      case 45:
+                        setState(() {
+                          _shift.breakTo =
+                              '${(newDateTime.hour + 1).toString().padLeft(2, '0')}:15';
+                        });
+                        break;
+                    }
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: Icon(Icons.free_breakfast, color: Colors.grey[800]),
+        title: Text('Pause von', style: TextStyle(fontSize: 16)),
+        trailing: Text(_shift.breakFrom,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+
+    final _breakToTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.breakTo = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.breakTo(_now, _shift);
+          setState(() {
+            _shift.breakTo =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.breakTo =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: Icon(null),
+        title: Text('Pause bis', style: TextStyle(fontSize: 16)),
+        trailing: Text(_shift.breakTo,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+
+    final _comment = Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: TextField(
+            controller: _commentController,
+            keyboardType: TextInputType.text,
+            autofocus: false,
+            decoration: InputDecoration(
+              hintText: 'Kommentar',
+              icon: Icon(Icons.comment, color: Colors.grey[800]),
+              contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(32)),
+            )));
+
+    final _divider = SizedBox(
+        height: 1.0,
+        child: Center(
+            child: Container(
+                margin: EdgeInsetsDirectional.only(start: 32.0, end: 32.0),
+                height: 1.0,
+                color: Colors.grey[500])));
+
+    final _fab = _showFab
+        ? FloatingActionButton.extended(
+            elevation: 4.0,
+            backgroundColor: _valid ? Colors.grey[850] : Colors.grey[600],
+            icon: Icon(Icons.cloud_upload),
+            label: Text('Senden'),
+            onPressed: _valid
+                ? () async {
+                    await globals.session.updateShift(_now, _shift);
+                    _dataSent = true;
+                    _valid = false;
+                    Navigator.pop(context, _dataSent);
+                  }
+                : null,
+          )
+        : SizedBox(height: 0);
 
     final _bottomNavBar = BottomAppBar(
         child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context, false);
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            _dataSent = false;
+            _valid = false;
+            Navigator.pop(context, _dataSent);
+          },
+          tooltip: "Zurück",
+        ),
+        IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () async {
+              if (_valid) {
+                _showAddTemplatePrompt();
+              }
             },
-            tooltip: "Zurück",
-          ),
-          IconButton(
-              icon: Icon(Icons.save),
-              tooltip: "Als neue Vorlage speichern",
-              onPressed: () {
-                if (Validator.validateShift(_shift) &&
-                    _commentController.text.isNotEmpty) {
-                  _validationController.reverse().then((v) {
-                    setState(() {
-                      _hasError = false;
-                    });
-                  });
-                  _addTag();
-                } else {
-                  setState(() {
-                    _hasError = true;
-                  });
-                  _validationController.forward();
-                }
-              })
-        ]));
+            tooltip: "Vorlage speichern"),
+      ],
+    ));
 
     return Scaffold(
-        appBar: CustomAppBar.dark,
+        appBar: CustomAppBar.gone,
         bottomNavigationBar: _bottomNavBar,
+        floatingActionButton: _fab,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: _showFab ? _fab : null,
-        // Catch pop events and set callback value.
-        // Main purpose is to override the back button to avoid passing null as callback.
+        backgroundColor: Colors.grey[50],
         body: WillPopScope(
             onWillPop: () {
+              _dataSent = false;
+              _valid = false;
               Navigator.pop(context, _dataSent);
             },
-            child: Container(
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: ListView(
                     physics: BouncingScrollPhysics(),
                     children: <Widget>[
-                  _buildValidationMsg(),
-                  _dayRow,
-                  Container(color: Colors.grey[300], height: 1),
-                  _workFromRow,
-                  _workToRow,
-                  Container(color: Colors.grey[300], height: 1),
-                  _breakFromRow,
-                  _breakToRow,
-                  Container(color: Colors.grey[300], height: 1),
-                  _comment,
-                  Container(color: Colors.grey[300], height: 1),
-                  _templateContainer()
-                ]))));
+                      SizedBox(height: 24),
+                      _header,
+                      SizedBox(height: 12),
+                      _dayTile,
+                      SizedBox(height: 9.5),
+                      _divider,
+                      SizedBox(height: 9.5),
+                      _workFromTile,
+                      _workToTile,
+                      SizedBox(height: 9.5),
+                      _divider,
+                      SizedBox(height: 9.5),
+                      _breakFromTile,
+                      _breakToTile,
+                      SizedBox(height: 16),
+                      _comment,
+                      SizedBox(height: 16),
+                      _getTagWidgets(),
+                      SizedBox(height: 16),
+                    ]))));
   }
 }

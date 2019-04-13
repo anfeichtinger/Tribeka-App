@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:tribeka/services/InitTimeGenerator.dart';
 import 'package:tribeka/services/Validator.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
@@ -32,6 +33,32 @@ class ShiftScreenState extends State<ShiftScreen> {
 
   ShiftScreenState(this._initialShift, this._editable, this._selectedTime);
 
+  void _checkModified() {
+    if (_newShift == _initialShift) {
+      setState(() {
+        _modified = false;
+      });
+    } else {
+      setState(() {
+        _modified = true;
+      });
+    }
+  }
+
+  void _checkValid() {
+    if (_modified) {
+      if (Validator.validateShift(_newShift)) {
+        setState(() {
+          _valid = true;
+        });
+      } else {
+        setState(() {
+          _valid = false;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
@@ -44,15 +71,9 @@ class ShiftScreenState extends State<ShiftScreen> {
     _newShift = Shift.copy(_initialShift);
     _commentController.text = _newShift.comment;
     _commentController.addListener(() {
-      if (!_modified) {
-        setState(() {
-          _modified = true;
-        });
-      }
-      setState(() {
-        _valid = Validator.validateShift(_newShift);
-      });
       _newShift.comment = _commentController.text;
+      _checkModified();
+      _checkValid();
     });
     super.initState();
   }
@@ -61,32 +82,6 @@ class ShiftScreenState extends State<ShiftScreen> {
   Widget build(BuildContext context) {
     // Hide the FAB when the keyboard is open to avoid clipping
     final bool _showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
-
-    void _checkModified() {
-      if (_newShift == _initialShift) {
-        setState(() {
-          _modified = false;
-        });
-      } else {
-        setState(() {
-          _modified = true;
-        });
-      }
-    }
-
-    void _checkValid() {
-      if (_modified) {
-        if (Validator.validateShift(_newShift)) {
-          setState(() {
-            _valid = true;
-          });
-        } else {
-          setState(() {
-            _valid = false;
-          });
-        }
-      }
-    }
 
     Widget _buildBottomPicker(Widget picker) {
       return Container(
@@ -139,14 +134,28 @@ class ShiftScreenState extends State<ShiftScreen> {
         padding: EdgeInsets.symmetric(horizontal: 16));
 
     final _workFromTile = ListTile(
+        onLongPress: _editable
+            ? () {
+                setState(() {
+                  _newShift.workFrom = '-';
+                });
+                _checkValid();
+              }
+            : () {},
         onTap: _editable
             ? () {
+                final _initial =
+                    InitTimeGenerator.workFrom(_selectedTime, _newShift);
+                setState(() {
+                  _newShift.workFrom =
+                      '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+                });
                 showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) {
                       return _buildBottomPicker(CupertinoDatePicker(
                         mode: CupertinoDatePickerMode.time,
-                        initialDateTime: DateTime(2019, 4, 12, 12, 0),
+                        initialDateTime: _initial,
                         use24hFormat: true,
                         minuteInterval: 15,
                         onDateTimeChanged: (DateTime newDateTime) {
@@ -167,14 +176,28 @@ class ShiftScreenState extends State<ShiftScreen> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
 
     final _workToTile = ListTile(
+        onLongPress: _editable
+            ? () {
+                setState(() {
+                  _newShift.workTo = '-';
+                });
+                _checkValid();
+              }
+            : () {},
         onTap: _editable
             ? () {
+                final _initial =
+                    InitTimeGenerator.workTo(_selectedTime, _newShift);
+                setState(() {
+                  _newShift.workTo =
+                      '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+                });
                 showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) {
                       return _buildBottomPicker(CupertinoDatePicker(
                         mode: CupertinoDatePickerMode.time,
-                        initialDateTime: DateTime(2019, 4, 12, 12, 0),
+                        initialDateTime: _initial,
                         use24hFormat: true,
                         minuteInterval: 15,
                         onDateTimeChanged: (DateTime newDateTime) {
@@ -200,18 +223,23 @@ class ShiftScreenState extends State<ShiftScreen> {
                 setState(() {
                   _newShift.breakFrom = '-';
                 });
-                _checkModified();
                 _checkValid();
               }
             : () {},
         onTap: _editable
             ? () {
+                final _initial =
+                    InitTimeGenerator.breakFrom(_selectedTime, _newShift);
+                setState(() {
+                  _newShift.breakFrom =
+                      '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+                });
                 showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) {
                       return _buildBottomPicker(CupertinoDatePicker(
                         mode: CupertinoDatePickerMode.time,
-                        initialDateTime: DateTime(2019, 4, 12, 12, 0),
+                        initialDateTime: _initial,
                         use24hFormat: true,
                         minuteInterval: 15,
                         onDateTimeChanged: (DateTime newDateTime) {
@@ -243,12 +271,18 @@ class ShiftScreenState extends State<ShiftScreen> {
             : () {},
         onTap: _editable
             ? () {
+                final _initial =
+                    InitTimeGenerator.breakTo(_selectedTime, _newShift);
+                setState(() {
+                  _newShift.breakTo =
+                      '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+                });
                 showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) {
                       return _buildBottomPicker(CupertinoDatePicker(
                         mode: CupertinoDatePickerMode.time,
-                        initialDateTime: DateTime(2019, 4, 12, 12, 0),
+                        initialDateTime: _initial,
                         use24hFormat: true,
                         minuteInterval: 15,
                         onDateTimeChanged: (DateTime newDateTime) {
@@ -295,61 +329,76 @@ class ShiftScreenState extends State<ShiftScreen> {
         trailing: Text(_newShift.place,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
 
-    return WillPopScope(
-        child: Scaffold(
-            appBar: CustomAppBar.gone,
-            bottomNavigationBar: BottomAppBar(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: () {
-                    _dataSent = false;
-                    Navigator.pop(context, _dataSent);
-                  },
-                  tooltip: "Zurück",
-                ),
-                _editable
-                    ? IconButton(
-                        icon: Icon(Icons.delete_outline),
-                        onPressed: () async {
-                          await globals.session
-                              .removeShift(_selectedTime, _initialShift);
-                          _dataSent = true;
-                          Navigator.pop(context, _dataSent);
-                        },
-                        tooltip: "Löschen",
-                      )
-                    : SizedBox(height: 0),
-              ],
-            )),
-            floatingActionButton: _editable
-                ? _showFab
-                    ? FloatingActionButton.extended(
-                        elevation: 4.0,
-                        backgroundColor: _modified
-                            ? _valid ? Colors.grey[850] : Colors.grey[600]
-                            : Colors.grey[700],
-                        icon: Icon(Icons.check),
-                        label: Text('Änderungen speichern'),
-                        onPressed: _modified
-                            ? _valid
-                                ? () async {
-                                    await globals.session
-                                        .updateShift(_selectedTime, _newShift);
-                                    _dataSent = true;
-                                    Navigator.pop(context, _dataSent);
-                                  }
-                                : null
-                            : null,
-                      )
-                    : SizedBox(height: 0)
-                : SizedBox(height: 0),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
-            backgroundColor: Colors.grey[50],
-            body: Padding(
+    final _divider = SizedBox(
+        height: 1.0,
+        child: Center(
+            child: Container(
+                margin: EdgeInsetsDirectional.only(start: 40.0, end: 40.0),
+                height: 1.0,
+                color: Colors.grey[500])));
+
+    final _fab = _editable
+        ? _showFab
+            ? FloatingActionButton.extended(
+                elevation: 4.0,
+                backgroundColor: _modified
+                    ? _valid ? Colors.grey[850] : Colors.grey[600]
+                    : Colors.grey[600],
+                icon: Icon(Icons.check),
+                label: Text('Änderungen speichern'),
+                onPressed: _modified
+                    ? _valid
+                        ? () async {
+                            await globals.session
+                                .updateShift(_selectedTime, _newShift);
+                            _dataSent = true;
+                            Navigator.pop(context, _dataSent);
+                          }
+                        : null
+                    : null,
+              )
+            : SizedBox(height: 0)
+        : SizedBox(height: 0);
+
+    final _bottomNavBar = BottomAppBar(
+        child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            _dataSent = false;
+            Navigator.pop(context, _dataSent);
+          },
+          tooltip: "Zurück",
+        ),
+        _editable
+            ? IconButton(
+                icon: Icon(Icons.delete_outline),
+                onPressed: () async {
+                  await globals.session
+                      .removeShift(_selectedTime, _initialShift);
+                  _dataSent = true;
+                  Navigator.pop(context, _dataSent);
+                },
+                tooltip: "Löschen",
+              )
+            : SizedBox(height: 0),
+      ],
+    ));
+
+    return Scaffold(
+        appBar: CustomAppBar.gone,
+        bottomNavigationBar: _bottomNavBar,
+        floatingActionButton: _fab,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        backgroundColor: Colors.grey[50],
+        body: WillPopScope(
+            onWillPop: () {
+              _dataSent = false;
+              Navigator.pop(context, _dataSent);
+            },
+            child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: ListView(
                     physics: BouncingScrollPhysics(),
@@ -360,34 +409,18 @@ class ShiftScreenState extends State<ShiftScreen> {
                       _workFromTile,
                       _workToTile,
                       SizedBox(height: 9.5),
-                      SizedBox(
-                          height: 1.0,
-                          child: Center(
-                              child: Container(
-                                  margin: EdgeInsetsDirectional.only(
-                                      start: 40.0, end: 40.0),
-                                  height: 1.0,
-                                  color: Colors.grey[500]))),
+                      _divider,
                       SizedBox(height: 9.5),
                       _breakFromTile,
                       _breakToTile,
                       SizedBox(height: 9.5),
-                      SizedBox(
-                          height: 1.0,
-                          child: Center(
-                              child: Container(
-                                  margin: EdgeInsetsDirectional.only(
-                                      start: 40.0, end: 40.0),
-                                  height: 1.0,
-                                  color: Colors.grey[500]))),
+                      _divider,
                       SizedBox(height: 9.5),
                       _hoursTile,
                       _placeTile,
                       SizedBox(height: 16),
                       _comment,
-                    ]))),
-        onWillPop: () {
-          Navigator.pop(context, _dataSent);
-        });
+                      SizedBox(height: 16)
+                    ]))));
   }
 }

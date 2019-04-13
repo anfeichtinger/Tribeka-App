@@ -70,7 +70,7 @@ packages:
       name: csslib
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.14.6"
+    version: "0.15.0"
   dart_config:
     dependency: transitive
     description:
@@ -86,7 +86,7 @@ packages:
       name: dio
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -126,7 +126,7 @@ packages:
       name: html
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.4+1"
+    version: "0.13.4+2"
   image:
     dependency: transitive
     description:
@@ -141,13 +141,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.15.8"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.11.3+2"
   matcher:
     dependency: transitive
     description:

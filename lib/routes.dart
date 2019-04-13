@@ -10,7 +10,6 @@ class Routes {
     '/Month': (BuildContext context) => MonthScreen(false),
     // In order to avoid logging in twice, we pass true. This will avoid a second login in MonthScreen
     '/MonthAuto': (BuildContext context) => MonthScreen(true),
-    AddShiftScreen.routeName: (BuildContext context) => AddShiftScreen()
   };
 
   final theme = ThemeData(

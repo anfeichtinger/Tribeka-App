@@ -16,7 +16,7 @@ class LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _autovalidateEmail = false;
   bool _autovalidatePw = false;
-  bool _autoLoginChecked = false;
+  bool _autoLoginChecked = true;
 
   Session _session = globals.session;
   final _formKey = GlobalKey<FormState>();

@@ -5,7 +5,6 @@ import 'package:flutter_picker/Picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:tribeka/screens/AddShiftScreen.dart';
-import 'package:tribeka/util/AddShiftScreenArgs.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
 import 'package:tribeka/widgets/CustomAppBar.dart';
@@ -59,6 +58,7 @@ class MonthScreenState extends State<MonthScreen> {
   }
 
   Future<Null> _loadMonthData() async {
+    await Future.delayed(Duration(milliseconds: 100));
     _shifts.clear();
     setState(() {
       _monthEditable = false;
@@ -74,9 +74,14 @@ class MonthScreenState extends State<MonthScreen> {
 
   // Navigator.push returns a Future that will complete after we call
   // Navigator.pop on the Selection Screen!
-  void _navigatorCallback(BuildContext context, String route) async {
-    final result = await Navigator.of(context).pushNamed('/Month/AddShift',
-        arguments: AddShiftScreenArgs(_selectedTime));
+  void _addShiftCallback(BuildContext context) async {
+    List<int> _presentDates = [];
+    _shifts.forEach((s) {
+      _presentDates.add(int.parse(s.day));
+    });
+
+    final result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => AddShiftScreen(_selectedTime, _presentDates)));
     if (result) {
       _loadMonthData();
     }
@@ -85,7 +90,7 @@ class MonthScreenState extends State<MonthScreen> {
   @override
   Widget build(BuildContext context) {
     final _monthStrip = Card(
-        elevation: 5,
+        elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
         margin: EdgeInsets.all(0),
         child: MonthStrip(
@@ -109,9 +114,7 @@ class MonthScreenState extends State<MonthScreen> {
           backgroundColor: Colors.grey[850],
           icon: Icon(Icons.add),
           label: Text('Dienst hinzufügen'),
-          onPressed: _monthEditable
-              ? () => _navigatorCallback(context, AddShiftScreen.routeName)
-              : null,
+          onPressed: _monthEditable ? () => _addShiftCallback(context) : null,
         ));
 
     _showLogoutPrompt() {
@@ -250,7 +253,7 @@ class MonthScreenState extends State<MonthScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.reply),
             onPressed: () => _showLogoutPrompt(),
             tooltip: "Abmelden",
           ),
@@ -317,8 +320,11 @@ class MonthScreenState extends State<MonthScreen> {
                             return _last
                                 ? MonthSummaryRow(
                                     _session.getTotalHoursInMonth())
-                                : ShiftRow(_shifts.elementAt(index),
-                                    _selectedTime, _monthEditable, _loadMonthData);
+                                : ShiftRow(
+                                    _shifts.elementAt(index),
+                                    _selectedTime,
+                                    _monthEditable,
+                                    _loadMonthData);
                           }),
             )
           ],
