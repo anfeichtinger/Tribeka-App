@@ -12,19 +12,19 @@ Hinweis: Dieses Projekt befindet sich in der Beta-Phase. Alle Features sollten b
 
 Abgesehen von Flutter und Dart werden folgende Dependencies verwendet:
 
-* **html:** für das Parsen der HTML Response und somit für das Web-Scraping.
-* **dio:** als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
-* **flutter_secure_storage:** um Daten verschlüsselt zu speichern z.B für das Autologin.
-* **intl:** für die Übersetzung der Namen der Monate.
-* **flutter_picker:** für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
-* **flutter_launcher_icons:** um das Launcher Icon zu generieren.
+* [**html:**](https://api.dartlang.org/stable/2.2.0/dart-html/dart-html-library.html) für das Parsen der HTML Response und somit für das Web-Scraping.
+* [**dio:**](https://pub.dartlang.org/packages/dio) als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
+* [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) um Daten verschlüsselt zu speichern z.B für das Autologin.
+* [**intl:**](https://pub.dartlang.org/packages/intl) für die Übersetzung der Namen der Monate.
+* [**flutter_picker:**]() für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
+* [**flutter_launcher_icons:**](https://pub.dartlang.org/packages/flutter_picker/versions/1.0.2) um das Launcher Icon zu generieren.
 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.
 
 Login Bildschirm                                 |  Monatsübersicht                           |  Leerer Monat
 :-----------------------------------------------:|:------------------------------------------:|:------------------------------------------------------:
-![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month.png)  |  ![Empty Month Screen](./Screenshots/empty_month.png)
+![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month.png)  |  ![Empty Month Screen](./Screenshots/add_shift_screen.png)
 
 ## Wie kann ich das Projekt öffnen und bearbeiten?
 
@@ -32,9 +32,9 @@ Es wird sowohl **Android Studio** mit zwei **Plugins (Dart** und **Flutter)** be
 Weitere Informationen zu den einzelnen Schritten sowie Schritte zur Problemlösung finden sich auf den jeweiligen Downloadseiten, welche ebenfalls verlinkt sind.
 Hier eine Schritt für Schritt Anleitung:
 
-*  Die aktuellste Version von **Android Studio** herunterladen und installieren. Diese kann hier heruntergeladen werden: https://developer.android.com/studio
+*  Die aktuellste Version von **Android Studio** herunterladen und installieren. Diese kann hier heruntergeladen werden: <https://developer.android.com/studio>
 
-*  Die aktuellste Version von **Flutter** herunterladen und an einen beliebigen Ort entpacken. Flutter kann hier heruntergeladen werden: https://flutter.dev/docs/get-started/install
+*  Die aktuellste Version von **Flutter** herunterladen und an einen beliebigen Ort entpacken. Flutter kann hier heruntergeladen werden: <https://flutter.dev/docs/get-started/install>
 
 *  Flutter sollte jetzt zur **PATH Variable** hinzugefügt werden um das Framework problemlos zu nutzen. Unter Windows 10 funktioniert dies wie folgt:
     * Drücken Sie die Tastenkombination *Win + R.*
