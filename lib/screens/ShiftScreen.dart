@@ -105,7 +105,7 @@ class ShiftScreenState extends State<ShiftScreen> {
       );
     }
 
-    _setBreakFromMinute(DateTime time) {
+    _setBreakToValue(DateTime time) {
       switch (time.minute) {
         case 0:
         case 15:
@@ -258,7 +258,8 @@ class ShiftScreenState extends State<ShiftScreen> {
                   _newShift.breakFrom =
                       '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
                 });
-                _setBreakFromMinute(_initial);
+                _setBreakToValue(_initial);
+                _checkValid();
                 showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) {
@@ -272,7 +273,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                             _newShift.breakFrom =
                                 '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
                           });
-                          _setBreakFromMinute(newDateTime);
+                          _setBreakToValue(newDateTime);
                           _checkModified();
                           _checkValid();
                         },
@@ -346,7 +347,7 @@ class ShiftScreenState extends State<ShiftScreen> {
     final _hoursTile = ListTile(
         leading: Icon(Icons.hourglass_full, color: Colors.grey[800]),
         title: Text('Stunden', style: TextStyle(fontSize: 16)),
-        trailing: Text(_newShift.hours,
+        trailing: Text('${_newShift.hours} h',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
 
     final _placeTile = ListTile(

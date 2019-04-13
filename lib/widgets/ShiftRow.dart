@@ -71,6 +71,7 @@ class ShiftRow extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
           subtitle: subtitle == null ? null : subtitle,
           isThreeLine: isThreeLine == null ? false : isThreeLine,
+          trailing: Text('${_shift.hours[0]}h'),
         ));
   }
 

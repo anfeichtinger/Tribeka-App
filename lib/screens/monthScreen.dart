@@ -144,10 +144,15 @@ class MonthScreenState extends State<MonthScreen> {
     }
 
     _showFinishMonthPrompt() {
-      StreamController<bool> controller = StreamController<bool>.broadcast();
-      Future.delayed(Duration(seconds: 5), () {
-        if (!controller.isClosed) {
-          controller.add(true);
+      StreamController<int> controller = StreamController<int>.broadcast();
+      Future.delayed(Duration(milliseconds: 50), () async {
+        controller.add(5);
+        for (int i = 4; i >= 0; i--) {
+          await Future.delayed(Duration(seconds: 1), () {
+            if (!controller.isClosed) {
+              controller.add(i);
+            }
+          });
         }
       });
       showDialog(
@@ -157,8 +162,17 @@ class MonthScreenState extends State<MonthScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8))),
               title: Text("Monat fertig stellen"),
-              content: Text(
-                  "Bist du dir sicher, dass du diesen Monat fertigstellen willst? Dies kann nicht rückgängig gemacht werden!\n\nIn 5 Sekunden wird der 'Ja' Button aktiviert."),
+              content: StreamBuilder(
+                  stream: controller.stream,
+                  builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                    if (snapshot.data == 0) {
+                      return Text(
+                          "Bist du dir sicher, dass du diesen Monat fertigstellen willst?\n\nDanach können keine weiteren Änderungen vorgenommen werden!");
+                    } else {
+                      return Text(
+                          "Bist du dir sicher, dass du diesen Monat fertigstellen willst?\nDanach können keine weiteren Änderungen vorgenommen werden!\n\nIn ${snapshot.data} Sekunden wird der 'Ja' Button aktiviert.");
+                    }
+                  }),
               actions: [
                 FlatButton(
                     onPressed: () => Navigator.pop(context),
@@ -166,10 +180,10 @@ class MonthScreenState extends State<MonthScreen> {
                 StreamBuilder(
                     stream: controller.stream,
                     builder:
-                        (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                        (BuildContext context, AsyncSnapshot<int> snapshot) {
                       return FlatButton(
                         child: Text('JA'),
-                        onPressed: snapshot.hasData
+                        onPressed: snapshot.data == 0
                             ? () async {
                                 Navigator.pop(context);
                                 await _session.finishMonth(_selectedTime);
@@ -238,6 +252,10 @@ class MonthScreenState extends State<MonthScreen> {
                   child: Text("SENDEN"),
                   onPressed: () async {
                     Navigator.pop(context);
+                    setState(() {
+                      _loading = true;
+                      _monthEditable = false;
+                    });
                     await _session.callInSick(_selectedTime, from, to);
                     _loadMonthData();
                   })

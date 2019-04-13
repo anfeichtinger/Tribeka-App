@@ -27,8 +27,9 @@ class Session {
         "application/x-www-form-urlencoded; charset=ISO-8859-1");
     _dio.options.responseType = ResponseType.plain;
     _dio.interceptors.add(CookieManager(CookieJar()));
-    //_dio.interceptors.add(LogInterceptor(responseBody: false));
     _dio.transformer = Latin1Transformer();
+    // For debugging only
+    // dio.interceptors.add(LogInterceptor(responseBody: true));
   }
 
   Future<Null> _get(String url) async {

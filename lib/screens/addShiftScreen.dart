@@ -332,6 +332,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
           });
           _setBreakFromMinute(_initial);
+          _checkValid();
           showCupertinoModalPopup(
               context: context,
               builder: (BuildContext context) {
@@ -472,9 +473,9 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 child: ListView(
                     physics: BouncingScrollPhysics(),
                     children: <Widget>[
-                      SizedBox(height: 32),
+                      SizedBox(height: 34),
                       _header,
-                      SizedBox(height: 16),
+                      SizedBox(height: 24),
                       _dayTile,
                       SizedBox(height: 9.5),
                       _divider,
