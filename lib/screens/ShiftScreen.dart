@@ -105,6 +105,30 @@ class ShiftScreenState extends State<ShiftScreen> {
       );
     }
 
+    _setBreakFromMinute(DateTime time) {
+      switch (time.minute) {
+        case 0:
+        case 15:
+          setState(() {
+            _newShift.breakTo =
+                '${time.hour.toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
+          });
+          break;
+        case 30:
+          setState(() {
+            _newShift.breakTo =
+                '${(time.hour + 1).toString().padLeft(2, '0')}:00';
+          });
+          break;
+        case 45:
+          setState(() {
+            _newShift.breakTo =
+                '${(time.hour + 1).toString().padLeft(2, '0')}:15';
+          });
+          break;
+      }
+    }
+
     final _header = Padding(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -234,6 +258,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                   _newShift.breakFrom =
                       '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
                 });
+                _setBreakFromMinute(_initial);
                 showCupertinoModalPopup(
                     context: context,
                     builder: (BuildContext context) {
@@ -247,6 +272,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                             _newShift.breakFrom =
                                 '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
                           });
+                          _setBreakFromMinute(newDateTime);
                           _checkModified();
                           _checkValid();
                         },

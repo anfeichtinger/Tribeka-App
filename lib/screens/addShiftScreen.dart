@@ -212,6 +212,28 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       }
     }
 
+    _setBreakFromMinute(DateTime time) {
+      switch (time.minute) {
+        case 0:
+        case 15:
+          setState(() {
+            _shift.breakTo =
+                '${time.hour.toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
+          });
+          break;
+        case 30:
+          setState(() {
+            _shift.breakTo = '${(time.hour + 1).toString().padLeft(2, '0')}:00';
+          });
+          break;
+        case 45:
+          setState(() {
+            _shift.breakTo = '${(time.hour + 1).toString().padLeft(2, '0')}:15';
+          });
+          break;
+      }
+    }
+
     final _header = Padding(
         child: Text(DateFormat('MMMM, yyyy').format(_now),
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
@@ -309,6 +331,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             _shift.breakFrom =
                 '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
           });
+          _setBreakFromMinute(_initial);
           showCupertinoModalPopup(
               context: context,
               builder: (BuildContext context) {
@@ -322,27 +345,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                       _shift.breakFrom =
                           '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
                     });
-                    switch (newDateTime.minute) {
-                      case 0:
-                      case 15:
-                        setState(() {
-                          _shift.breakTo =
-                              '${newDateTime.hour.toString().padLeft(2, '0')}:${(newDateTime.minute + 30).toString().padLeft(2, '0')}';
-                        });
-                        break;
-                      case 30:
-                        setState(() {
-                          _shift.breakTo =
-                              '${(newDateTime.hour + 1).toString().padLeft(2, '0')}:00';
-                        });
-                        break;
-                      case 45:
-                        setState(() {
-                          _shift.breakTo =
-                              '${(newDateTime.hour + 1).toString().padLeft(2, '0')}:15';
-                        });
-                        break;
-                    }
+                    _setBreakFromMinute(newDateTime);
                     _checkValid();
                   },
                 ));
@@ -469,9 +472,9 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 child: ListView(
                     physics: BouncingScrollPhysics(),
                     children: <Widget>[
-                      SizedBox(height: 24),
+                      SizedBox(height: 32),
                       _header,
-                      SizedBox(height: 12),
+                      SizedBox(height: 16),
                       _dayTile,
                       SizedBox(height: 9.5),
                       _divider,
