@@ -235,6 +235,18 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       }
     }
 
+    // We need this to work around a bug in the picker itself
+    DateTime _switch15and45Minutes(DateTime old) {
+      switch (old.minute) {
+        case 15:
+          return DateTime(old.year, old.month, old.day, old.hour, 45);
+        case 45:
+          return DateTime(old.year, old.month, old.day, old.hour, 15);
+        default:
+          return old;
+      }
+    }
+
     final _header = Padding(
         child: Text(DateFormat('MMMM, yyyy').format(_now),
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
@@ -265,7 +277,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               builder: (BuildContext context) {
                 return _buildBottomPicker(CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.time,
-                  initialDateTime: _initial,
+                  initialDateTime: _switch15and45Minutes(_initial),
                   use24hFormat: true,
                   minuteInterval: 15,
                   onDateTimeChanged: (DateTime newDateTime) {
@@ -301,7 +313,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               builder: (BuildContext context) {
                 return _buildBottomPicker(CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.time,
-                  initialDateTime: _initial,
+                  initialDateTime: _switch15and45Minutes(_initial),
                   use24hFormat: true,
                   minuteInterval: 15,
                   onDateTimeChanged: (DateTime newDateTime) {
@@ -339,7 +351,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               builder: (BuildContext context) {
                 return _buildBottomPicker(CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.time,
-                  initialDateTime: _initial,
+                  initialDateTime: _switch15and45Minutes(_initial),
                   use24hFormat: true,
                   minuteInterval: 15,
                   onDateTimeChanged: (DateTime newDateTime) {
@@ -376,7 +388,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               builder: (BuildContext context) {
                 return _buildBottomPicker(CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.time,
-                  initialDateTime: _initial,
+                  initialDateTime: _switch15and45Minutes(_initial),
                   use24hFormat: true,
                   minuteInterval: 15,
                   onDateTimeChanged: (DateTime newDateTime) {

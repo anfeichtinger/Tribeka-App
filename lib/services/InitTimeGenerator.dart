@@ -1,7 +1,7 @@
 import 'package:tribeka/util/Shift.dart';
 
 class InitTimeGenerator {
-  static int _getMinute(int i) {
+  static int _getBreakMinutes(int i) {
     switch (i) {
       case 30:
         return 0;
@@ -22,7 +22,7 @@ class InitTimeGenerator {
         if (hour < 6) {
           hour = 6;
         }
-        int minute = _getMinute(int.parse(split[1]));
+        int minute = _getBreakMinutes(int.parse(split[1]));
         return DateTime(time.year, time.month, time.day, hour, minute);
       }
     } else {
@@ -42,7 +42,7 @@ class InitTimeGenerator {
         if (hour > 20) {
           hour = 20;
         }
-        int minute = _getMinute(int.parse(split[1]));
+        int minute = _getBreakMinutes(int.parse(split[1]));
         return DateTime(time.year, time.month, time.day, hour, minute);
       }
     } else {
