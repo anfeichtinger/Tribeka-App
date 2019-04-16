@@ -10,7 +10,7 @@ Hinweis: Dieses Projekt befindet sich in der Beta-Phase. Alle Features sollten b
 
 **Ziel** dieses Projektes ist es, das Eintragen der Arbeitsstunden so einfach und schnell wie möglich abzuwickeln. Aus diesem Grund ist es möglich innerhalb der App selbst Vorlagen abzuspeichern, wodurch der Benutzer seine Arbeitszeiten innerhalb von wenigen Sekunden aufzeichnen kann.
 
-Abgesehen von Flutter und Dart werden folgende Dependencies verwendet:
+Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwendet:
 
 * [**html:**](https://api.dartlang.org/stable/2.2.0/dart-html/dart-html-library.html) für das Parsen der HTML Response und somit für das Web-Scraping.
 * [**dio:**](https://pub.dartlang.org/packages/dio) als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
@@ -19,6 +19,10 @@ Abgesehen von Flutter und Dart werden folgende Dependencies verwendet:
 * [**flutter_picker:**]() für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
 * [**flutter_launcher_icons:**](https://pub.dartlang.org/packages/flutter_picker/versions/1.0.2) um das Launcher Icon zu generieren.
 * [**material_design_icons_flutter:**](https://pub.dartlang.org/packages/material_design_icons_flutter) Um die Material Icons nutzen zu können (Bietet mehr Umfag als die in Flutter enthaltenen Material Icons)
+
+Weiters sind folgende Dependencies nicht in der pubspec.yaml zu finden, sondern im Verzeichnis "lib/widgets".
+* [**month_picker_strip:**](https://github.com/mahmed8003/month_picker_strip) Von mir verändert um das Aussehen anzupassen.
+* [**flutter_tags:**](https://github.com/Dn-a/flutter_tags) Von mir verändert um das Aussehen anzupassen sowie die LongPress Funktion zu verwenden.
 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.
