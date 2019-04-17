@@ -272,6 +272,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             _shift.workFrom =
                 '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
           });
+          _checkValid();
           showCupertinoModalPopup(
               context: context,
               builder: (BuildContext context) {
@@ -308,6 +309,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             _shift.workTo =
                 '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
           });
+          _checkValid();
           showCupertinoModalPopup(
               context: context,
               builder: (BuildContext context) {
@@ -383,6 +385,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             _shift.breakTo =
                 '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
           });
+          _checkValid();
           showCupertinoModalPopup(
               context: context,
               builder: (BuildContext context) {
