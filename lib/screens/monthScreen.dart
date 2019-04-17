@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_picker/Picker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -33,6 +34,7 @@ class MonthScreenState extends State<MonthScreen> {
   MonthScreenState(this._automatic);
 
   final _session = globals.session;
+  final _storage = FlutterSecureStorage();
   DateFormat dateFormat;
   DateTime _selectedTime = DateTime.now();
 
@@ -49,6 +51,94 @@ class MonthScreenState extends State<MonthScreen> {
     }
   }
 
+  final placesAvail = [
+    PickerItem(text: Text('Grieskai'), value: 'grieskai'),
+    PickerItem(text: Text('Kaiserfeldgasse'), value: 'kaiserfeldgasse'),
+    PickerItem(text: Text('Reiterkaserne'), value: 'reiterkaserne'),
+    PickerItem(text: Text('TU'), value: 'tu'),
+    PickerItem(text: Text('Ausliefern'), value: 'ausliefern'),
+    PickerItem(text: Text('Büro'), value: 'büro'),
+    PickerItem(text: Text('Küche'), value: 'küche'),
+    PickerItem(text: Text('Rösten'), value: 'rösten')
+  ];
+
+  Future<Null> _showPlacePickerPrompt() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8))),
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text("Lokal auswählen"),
+                Icon(MdiIcons.mapMarkerOutline)
+              ]),
+          content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+            Text(
+                "Dein Lokal konnte nicht automatisch erkannt werden, bitte wähle aus wo du arbeitest."),
+            Picker(
+                textStyle: TextStyle(fontSize: 24, color: Colors.black),
+                height: 200,
+                hideHeader: true,
+                columnPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                adapter: PickerDataAdapter(data: placesAvail),
+                onSelect: (Picker picker, int i, List value) {
+                  globals.user.place = picker.getSelectedValues()[i];
+                }).makePicker()
+          ]),
+          actions: [
+            FlatButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _storage.write(key: 'place', value: globals.user.place);
+                })
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Null> _prepareUser(List<Shift> shifts) async {
+    if (globals.user.place == null || globals.user.place.isEmpty) {
+      String place = await _storage.read(key: 'place');
+      if (place == null || place.isEmpty) {
+        if (shifts.isNotEmpty) {
+          List<String> places = [];
+          shifts
+              .takeWhile(
+                  (shift) => shift.place != 'krank' && shift.place.isNotEmpty)
+              .forEach((shift) {
+            if (!places.contains(shift.place)) {
+              places.add(shift.place);
+            }
+          });
+          if (places.length == 1) {
+            globals.user.place = places[0];
+          } else {
+            int newYear = _selectedTime.year;
+            int newMonth = _selectedTime.month - 1;
+            if (newMonth < 1) {
+              newMonth = 12;
+              --newYear;
+            } else if (newMonth > 12) {
+              newMonth = 1;
+              ++newYear;
+            }
+            _selectedTime = DateTime(newYear, newMonth);
+            _loadMonthData();
+          }
+        } else {
+          await _showPlacePickerPrompt();
+        }
+      } else {
+        globals.user.place = place;
+      }
+    }
+  }
+
   @override
   void initState() {
     initializeDateFormatting();
@@ -59,6 +149,8 @@ class MonthScreenState extends State<MonthScreen> {
   }
 
   Future<Null> _loadMonthData() async {
+    // Short delay so the widget tree can build in peace.
+    // An exception will be thrown once in a while without it.
     await Future.delayed(Duration(milliseconds: 100));
     _shifts.clear();
     setState(() {
@@ -67,6 +159,7 @@ class MonthScreenState extends State<MonthScreen> {
     });
     _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
     bool edit = _session.isMonthEditable();
+    await _prepareUser(_shifts);
     setState(() {
       _loading = false;
       _monthEditable = edit;
@@ -141,6 +234,7 @@ class MonthScreenState extends State<MonthScreen> {
                   onPressed: () {
                     Navigator.of(context).pushNamedAndRemoveUntil(
                         '/Login', (Route<dynamic> route) => false);
+                    globals.user.place = null;
                     _session.logout();
                   })
             ],
@@ -219,7 +313,8 @@ class MonthScreenState extends State<MonthScreen> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8))),
-            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[Text("Krank melden"), Icon(MdiIcons.pill)]),
             content: Container(
               height: 198,

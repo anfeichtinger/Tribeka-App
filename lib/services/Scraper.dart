@@ -107,12 +107,24 @@ class Scrapper {
           .elementAt(4)
           .text
           .trim();
-      String _place =
-          tableRows.elementAt(i).getElementsByTagName("td").elementAt(5).text;
-      String _comment =
-          tableRows.elementAt(i).getElementsByTagName("td").elementAt(6).text;
-      String _hours =
-          tableRows.elementAt(i).getElementsByTagName("td").elementAt(7).text;
+      String _place = tableRows
+          .elementAt(i)
+          .getElementsByTagName("td")
+          .elementAt(5)
+          .text
+          .trim();
+      String _comment = tableRows
+          .elementAt(i)
+          .getElementsByTagName("td")
+          .elementAt(6)
+          .text
+          .trim();
+      String _hours = tableRows
+          .elementAt(i)
+          .getElementsByTagName("td")
+          .elementAt(7)
+          .text
+          .trim();
 
       hoursInMonth += _hoursAsDouble(_hours);
 

@@ -130,27 +130,6 @@ class Session {
     }
   }
 
-  // When there is no place search for one in current month. If there is still no place, look at previous month
-  // At least one Shift has to be present on the Website
-  void _searchUserPlace(int _month, int _year) {
-    if (globals.user.place == null || globals.user.place.isEmpty) {
-      if (!_scrapper.generateUserPlace(_response)) {
-        int _newMonth = _month - 1;
-        if (_newMonth > 0) {
-          _enterMonth(DateTime(_year, _newMonth)).then((v) {
-            _scrapper.generateUserPlace(_response);
-          });
-        } else {
-          _enterMonth(DateTime(_year - 1, 12)).then((v) {
-            _scrapper.generateUserPlace(_response);
-          }).then((v) {
-            _enterMonth(DateTime(_year, _month));
-          });
-        }
-      }
-    }
-  }
-
   Future<Null> _enterMonth(DateTime selectedTime) async {
     try {
       return await _post(baseURL + 'stunden/' + 'Default.asp', {
@@ -173,7 +152,6 @@ class Session {
   Future<List<Shift>> scrapShiftsFromMonth(DateTime selectedTime) async {
     await _enterMonth(selectedTime);
     List<Shift> _shifts = _scrapper.scrapShiftsFromMonth(_response);
-    _searchUserPlace(selectedTime.month, selectedTime.year);
     return _shifts;
   }
 
@@ -183,9 +161,10 @@ class Session {
 
   void logout() async {
     await _get(baseURL);
-    _storage.write(key: 'autologin', value: '0');
-    _storage.write(key: 'email', value: '');
-    _storage.write(key: 'password', value: '');
+    _storage.delete(key: 'autologin');
+    _storage.delete(key: 'email');
+    _storage.delete(key: 'password');
+    _storage.delete(key: 'place');
     debugPrint('DEBUG - Logged out');
   }
 
