@@ -63,40 +63,46 @@ class MonthScreenState extends State<MonthScreen> {
   ];
 
   Future<Null> _showPlacePickerPrompt() async {
+    globals.user.place = 'grieskai';
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8))),
-          title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text("Lokal auswählen"),
-                Icon(MdiIcons.mapMarkerOutline)
+        return WillPopScope(
+            onWillPop: () {},
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8))),
+              title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("Lokal auswählen"),
+                    Icon(MdiIcons.mapMarkerOutline)
+                  ]),
+              content:
+                  Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                Text(
+                    "Dein Lokal konnte nicht automatisch erkannt werden, bitte wähle aus wo du arbeitest."),
+                Picker(
+                    textStyle: TextStyle(fontSize: 24, color: Colors.black),
+                    height: 200,
+                    hideHeader: true,
+                    columnPadding:
+                        EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                    adapter: PickerDataAdapter(data: placesAvail),
+                    onSelect: (Picker picker, int i, List value) {
+                      globals.user.place = picker.getSelectedValues()[i];
+                    }).makePicker()
               ]),
-          content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-            Text(
-                "Dein Lokal konnte nicht automatisch erkannt werden, bitte wähle aus wo du arbeitest."),
-            Picker(
-                textStyle: TextStyle(fontSize: 24, color: Colors.black),
-                height: 200,
-                hideHeader: true,
-                columnPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                adapter: PickerDataAdapter(data: placesAvail),
-                onSelect: (Picker picker, int i, List value) {
-                  globals.user.place = picker.getSelectedValues()[i];
-                }).makePicker()
-          ]),
-          actions: [
-            FlatButton(
-                child: Text("OK"),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _storage.write(key: 'place', value: globals.user.place);
-                })
-          ],
-        );
+              actions: [
+                FlatButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _storage.write(key: 'place', value: globals.user.place);
+                    })
+              ],
+            ));
       },
     );
   }
@@ -118,17 +124,7 @@ class MonthScreenState extends State<MonthScreen> {
           if (places.length == 1) {
             globals.user.place = places[0];
           } else {
-            int newYear = _selectedTime.year;
-            int newMonth = _selectedTime.month - 1;
-            if (newMonth < 1) {
-              newMonth = 12;
-              --newYear;
-            } else if (newMonth > 12) {
-              newMonth = 1;
-              ++newYear;
-            }
-            _selectedTime = DateTime(newYear, newMonth);
-            _loadMonthData();
+            await _showPlacePickerPrompt();
           }
         } else {
           await _showPlacePickerPrompt();
