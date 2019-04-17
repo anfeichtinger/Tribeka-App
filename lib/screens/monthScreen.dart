@@ -242,8 +242,8 @@ class MonthScreenState extends State<MonthScreen> {
     _showFinishMonthPrompt() {
       StreamController<int> controller = StreamController<int>.broadcast();
       Future.delayed(Duration(milliseconds: 50), () async {
-        controller.add(5);
-        for (int i = 4; i >= 0; i--) {
+        controller.add(10);
+        for (int i = 9; i >= 0; i--) {
           await Future.delayed(Duration(seconds: 1), () {
             if (!controller.isClosed) {
               controller.add(i);
