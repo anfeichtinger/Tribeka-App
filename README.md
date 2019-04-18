@@ -6,7 +6,7 @@ Dies ist das Git Repository für die **Projektarbeit/Bachlorarbeit** von **Andre
 
 Inhalt dieses Projektes ist eine auf dem Framework Flutter basierende App, welche es mobilen Geräten erlaubt die Arbeitsstunden in der Firma Tribeka festzuhalten.
 **Wichtig ist hierbei, dass es zwingend notwendig ist Zugang zu einem existierenden Account zu haben.** Da keine API zur Verfügung steht wird über die App mit dem Webserver kommuniziert, wobei die Response des Servers von der App analysiert wird. Mittels Web-Scraping werden die relevanten Daten extrahiert und zu leicht bearbeitbaren Objekten umgewandelt.
-Hinweis: Dieses Projekt befindet sich in der Beta-Phase. Alle Features sollten bereits erwartungsgemäß funktionieren, jedoch kann es noch zu Bugs oder Änderungen kommen. Getestet wurde bisher nur die Android Version (min SDK Version 18), daher kann es sein, dass die iOS Version nicht komplett funktionsfähig ist.
+Hinweis: Dieses Projekt befindet sich in der Beta-Phase. Alle Features sollten bereits erwartungsgemäß funktionieren, jedoch kann es noch zu Bugs oder Änderungen kommen.
 
 **Ziel** dieses Projektes ist es, das Eintragen der Arbeitsstunden so einfach und schnell wie möglich abzuwickeln. Aus diesem Grund ist es möglich innerhalb der App selbst Vorlagen abzuspeichern, wodurch der Benutzer seine Arbeitszeiten innerhalb von wenigen Sekunden aufzeichnen kann.
 
@@ -14,7 +14,8 @@ Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwe
 
 * [**html:**](https://api.dartlang.org/stable/2.2.0/dart-html/dart-html-library.html) für das Parsen der HTML Response und somit für das Web-Scraping.
 * [**dio:**](https://pub.dartlang.org/packages/dio) als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
-* [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) um Daten verschlüsselt zu speichern z.B für das Autologin.
+* [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) um sicherheitskritische Daten verschlüsselt zu speichern z.B Passwort
+* [**shared_preferences:**](https://pub.dartlang.org/packages/shared_preferences) um normale Daten zu speichern z.B Fertiggestellte Monate
 * [**intl:**](https://pub.dartlang.org/packages/intl) für die Übersetzung der Namen der Monate.
 * [**flutter_picker:**]() für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
 * [**flutter_launcher_icons:**](https://pub.dartlang.org/packages/flutter_picker/versions/1.0.2) um das Launcher Icon zu generieren.
