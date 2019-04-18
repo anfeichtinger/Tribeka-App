@@ -439,7 +439,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             label: Text('Senden'),
             onPressed: _valid
                 ? () async {
-                    await globals.session.updateShift(_now, _shift);
+                    await globals.session.sendShift(_now, _shift);
                     _dataSent = true;
                     _valid = false;
                     Navigator.pop(context, _dataSent);

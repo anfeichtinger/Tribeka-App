@@ -7,9 +7,7 @@ class Routes {
   final routes = <String, WidgetBuilder>{
     '/': (BuildContext context) => StarterScreen(),
     '/Login': (BuildContext context) => LoginScreen(),
-    '/Month': (BuildContext context) => MonthScreen(false),
-    // In order to avoid logging in twice, we pass true. This will avoid a second login in MonthScreen
-    '/MonthAuto': (BuildContext context) => MonthScreen(true),
+    '/Month': (BuildContext context) => MonthScreen(),
   };
 
   final theme = ThemeData(

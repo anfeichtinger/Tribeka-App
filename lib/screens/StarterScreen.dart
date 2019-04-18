@@ -17,7 +17,7 @@ class StarterScreenState extends State<StarterScreen> {
     _autoLogin = await _storage.read(key: 'autologin') == '1';
     if (_autoLogin) {
       Navigator.of(context).pushNamedAndRemoveUntil(
-          '/MonthAuto', (Route<dynamic> route) => false);
+          '/Month', (Route<dynamic> route) => false);
     } else {
       Navigator.of(context)
           .pushNamedAndRemoveUntil('/Login', (Route<dynamic> route) => false);

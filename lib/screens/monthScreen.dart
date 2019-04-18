@@ -21,19 +21,11 @@ import '../widgets/CustomMonthPickerStrip.dart';
 // In order to get the application to open as fast as possible the automatic
 // authentication is started after the layout is drawn.
 class MonthScreen extends StatefulWidget {
-  final bool _automatic;
-
-  MonthScreen(this._automatic);
-
   @override
-  State createState() => MonthScreenState(_automatic);
+  State createState() => MonthScreenState();
 }
 
 class MonthScreenState extends State<MonthScreen> {
-  final bool _automatic;
-
-  MonthScreenState(this._automatic);
-
   final _session = globals.session;
   final _storage = FlutterSecureStorage();
   final _shiftRepo = ShiftRepository();
@@ -46,11 +38,10 @@ class MonthScreenState extends State<MonthScreen> {
   bool _monthEditable = false;
 
   Future<Null> _checkLoginType() async {
-    if (_automatic) {
-      await _session.autoLogin(context);
-      _loadMonthData();
+    if (await _shiftRepo.monthIsPersisted(_selectedTime)) {
+      _loadMonthData(false, true);
     } else {
-      _loadMonthData();
+      _loadMonthData(true, true);
     }
   }
 
@@ -147,36 +138,56 @@ class MonthScreenState extends State<MonthScreen> {
     }
   }
 
-  Future<Null> _loadMonthData() async {
-    _shifts.clear();
-    setState(() {
-      _monthEditable = false;
-      _loading = true;
-    });
+  Future<Null> _checkForUpdate() async {
+    await _session.autoLogin(context);
+    List<Shift> onlineShifts =
+        await _session.scrapShiftsFromMonth(_selectedTime);
+    if (onlineShifts == null) {
+      return null;
+    } else if (_shifts.length != onlineShifts.length) {
+      _loadMonthData(true, false);
+    } else {
+      for (int i = 0; i < onlineShifts.length; i++) {
+        if (onlineShifts[i] != _shifts[i]) {
+          _loadMonthData(true, false);
+        }
+      }
+    }
+  }
+
+  Future<Null> _loadMonthData(bool refresh, bool showLoading) async {
+    if (showLoading) {
+      _shifts.clear();
+      setState(() {
+        _monthEditable = false;
+        _loading = true;
+      });
+    }
     bool edit;
-    if (await _shiftRepo.monthIsPersisted(_selectedTime)) {
+    if (refresh) {
+      _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
+      edit = _session.isMonthEditable();
+      _totalHours = _session.getTotalHoursInMonth();
+      _shiftRepo.clearMonthData(_selectedTime.subtract(Duration(days: 366)));
+    } else if (await _shiftRepo.monthIsPersisted(_selectedTime)) {
       _shifts = await _shiftRepo.getPersistedMonthShifts(_selectedTime);
       edit = await _shiftRepo.monthIsEditable(_selectedTime);
       _totalHours = await _shiftRepo.getTotalHoursInMonth(_selectedTime);
+      _checkForUpdate();
     } else {
       _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
       edit = _session.isMonthEditable();
       _totalHours = _session.getTotalHoursInMonth();
-      _shiftRepo.clearMonthData(
-          DateTime(DateTime.now().year - 1, DateTime.now().month));
+      _shiftRepo.clearMonthData(_selectedTime.subtract(Duration(days: 366)));
     }
     await _prepareUser(_shifts);
     setState(() {
       _loading = false;
       _monthEditable = edit;
     });
-    // Save all finished months that are not older than a year
-    if (_monthEditable == false) {
-      if (_selectedTime
-          .isAfter(DateTime(DateTime.now().year - 1, DateTime.now().month))) {
-        _shiftRepo.persistMonthShifts(
-            _selectedTime, _shifts, false, _session.getTotalHoursInMonth());
-      }
+    if (_selectedTime.isAfter(_selectedTime.subtract(Duration(days: 366))) &&
+        _selectedTime.isBefore(_selectedTime.add(Duration(days: 32)))) {
+      _shiftRepo.persistMonthShifts(_selectedTime, _shifts, edit, _totalHours);
     }
   }
 
@@ -191,7 +202,7 @@ class MonthScreenState extends State<MonthScreen> {
     final result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => AddShiftScreen(_selectedTime, _presentDates)));
     if (result) {
-      _loadMonthData();
+      _loadMonthData(true, false);
     }
   }
 
@@ -210,7 +221,7 @@ class MonthScreenState extends State<MonthScreen> {
           viewportFraction: 0.25,
           onMonthChanged: (newTime) {
             _selectedTime = newTime;
-            _loadMonthData();
+            _loadMonthData(false, false);
           },
         ));
 
@@ -306,7 +317,7 @@ class MonthScreenState extends State<MonthScreen> {
                             ? () async {
                                 Navigator.pop(context);
                                 await _session.finishMonth(_selectedTime);
-                                _loadMonthData();
+                                _loadMonthData(true, false);
                               }
                             : null,
                       );
@@ -378,7 +389,7 @@ class MonthScreenState extends State<MonthScreen> {
                       _monthEditable = false;
                     });
                     await _session.callInSick(_selectedTime, from, to);
-                    _loadMonthData();
+                    _loadMonthData(true, false);
                   })
             ],
           );

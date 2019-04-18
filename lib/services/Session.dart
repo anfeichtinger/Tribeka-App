@@ -30,7 +30,7 @@ class Session {
     _dio.interceptors.add(CookieManager(CookieJar()));
     _dio.transformer = Latin1Transformer();
     // For debugging only
-    // dio.interceptors.add(LogInterceptor(responseBody: true));
+    // _dio.interceptors.add(LogInterceptor(responseBody: true));
   }
 
   Future<Null> _get(String url) async {
@@ -125,6 +125,7 @@ class Session {
           await _get(baseURL + 'stunden/');
         } on DioError {}
         if (_response.statusCode == 200) {
+          _scrapper.generateUserId(_response);
           //success
         }
       }

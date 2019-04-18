@@ -109,8 +109,7 @@ class ShiftRepository {
       return true;
     } else {
       List<dynamic> jsonData = jsonDecode(data);
-      bool canEdit = bool.fromEnvironment(jsonData[0]['editable']);
-      return canEdit;
+      return jsonData[0]['editable'] == 'true';
     }
   }
 
@@ -121,12 +120,8 @@ class ShiftRepository {
     String data = _prefs.getString('${dateTime.year}-${dateTime.month}');
     if (data == null || data.isEmpty) {
       data = '';
-    } else {
-      List<dynamic> jsonData = jsonDecode(data);
-      bool canEdit = bool.fromEnvironment(jsonData[0]['editable']);
-      if (!canEdit) {
-        return null;
-      }
+    } else if (!await monthIsEditable(dateTime)) {
+      return null;
     }
 
     data = '[{"editable": "$editable", "totalHours": "$totalHours","days": [';
@@ -139,7 +134,9 @@ class ShiftRepository {
           '"place": "${shift.place}","hours": "${shift.hours}"}},';
     });
 
-    data = data.substring(0, data.length - 1);
+    if (shifts.isNotEmpty) {
+      data = data.substring(0, data.length - 1);
+    }
     data += ']}]';
 
     _prefs.setString('${dateTime.year}-${dateTime.month}', data);
