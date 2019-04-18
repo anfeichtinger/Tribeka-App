@@ -8,7 +8,7 @@ import 'package:tribeka/services/InitTimeGenerator.dart';
 import 'package:tribeka/services/Validator.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
-import 'package:tribeka/util/TagHandler.dart';
+import 'package:tribeka/util/ShiftRepository.dart';
 import 'package:tribeka/widgets/CustomAppBar.dart';
 import 'package:tribeka/widgets/CustomSelectableTags.dart';
 
@@ -67,7 +67,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
     _dataSent = false;
     _valid = false;
 
-    TagHandler().getTags().then((newList) {
+    ShiftRepository().getTags().then((newList) {
       setState(() {
         _templates = newList;
       });
@@ -117,7 +117,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
 
     _applyTemplate(Tag tag) async {
       tag.active = true;
-      Shift shift = await TagHandler().getPersistedShift(tag.title);
+      Shift shift = await ShiftRepository().getPersistedTagShift(tag.title);
 
       if (shift == null) {
         setState(() {
@@ -141,7 +141,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       setState(() {
         _templates.add(Tag(title: title));
       });
-      TagHandler().persistTag(_shift, title);
+      ShiftRepository().persistTag(_shift, title);
     }
 
     Widget _getTagWidgets() {
@@ -159,7 +159,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             setState(() {
               _templates.remove(tag);
             });
-            TagHandler().deletePersistedTag(tag.title);
+            ShiftRepository().deletePersistedTag(tag.title);
           },
         );
       }

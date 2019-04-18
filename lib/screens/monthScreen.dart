@@ -9,6 +9,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:tribeka/screens/AddShiftScreen.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
+import 'package:tribeka/util/ShiftRepository.dart';
 import 'package:tribeka/widgets/CustomAppBar.dart';
 import 'package:tribeka/widgets/MonthSummaryRow.dart';
 import 'package:tribeka/widgets/ShiftRow.dart';
@@ -35,10 +36,12 @@ class MonthScreenState extends State<MonthScreen> {
 
   final _session = globals.session;
   final _storage = FlutterSecureStorage();
+  final _shiftRepo = ShiftRepository();
   DateFormat dateFormat;
   DateTime _selectedTime = DateTime.now();
 
   List<Shift> _shifts = new List();
+  double _totalHours = 0.0;
   bool _loading = true;
   bool _monthEditable = false;
 
@@ -49,6 +52,15 @@ class MonthScreenState extends State<MonthScreen> {
     } else {
       _loadMonthData();
     }
+  }
+
+  @override
+  void initState() {
+    initializeDateFormatting();
+    dateFormat = DateFormat('MMMM yyyy', 'de');
+
+    super.initState();
+    _checkLoginType();
   }
 
   final placesAvail = [
@@ -135,31 +147,37 @@ class MonthScreenState extends State<MonthScreen> {
     }
   }
 
-  @override
-  void initState() {
-    initializeDateFormatting();
-    dateFormat = DateFormat('MMMM yyyy', 'de');
-
-    super.initState();
-    _checkLoginType();
-  }
-
   Future<Null> _loadMonthData() async {
-    // Short delay so the widget tree can build in peace.
-    // An exception will be thrown once in a while without it.
-    await Future.delayed(Duration(milliseconds: 100));
     _shifts.clear();
     setState(() {
       _monthEditable = false;
       _loading = true;
     });
-    _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
-    bool edit = _session.isMonthEditable();
+    bool edit;
+    if (await _shiftRepo.monthIsPersisted(_selectedTime)) {
+      _shifts = await _shiftRepo.getPersistedMonthShifts(_selectedTime);
+      edit = await _shiftRepo.monthIsEditable(_selectedTime);
+      _totalHours = await _shiftRepo.getTotalHoursInMonth(_selectedTime);
+    } else {
+      _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
+      edit = _session.isMonthEditable();
+      _totalHours = _session.getTotalHoursInMonth();
+      _shiftRepo.clearMonthData(
+          DateTime(DateTime.now().year - 1, DateTime.now().month));
+    }
     await _prepareUser(_shifts);
     setState(() {
       _loading = false;
       _monthEditable = edit;
     });
+    // Save all finished months that are not older than a year
+    if (_monthEditable == false) {
+      if (_selectedTime
+          .isAfter(DateTime(DateTime.now().year - 1, DateTime.now().month))) {
+        _shiftRepo.persistMonthShifts(
+            _selectedTime, _shifts, false, _session.getTotalHoursInMonth());
+      }
+    }
   }
 
   // Navigator.push returns a Future that will complete after we call
@@ -439,8 +457,7 @@ class MonthScreenState extends State<MonthScreen> {
                           itemBuilder: (BuildContext context, int index) {
                             bool _last = index == _shifts.length;
                             return _last
-                                ? MonthSummaryRow(
-                                    _session.getTotalHoursInMonth())
+                                ? MonthSummaryRow(_totalHours)
                                 : ShiftRow(
                                     _shifts.elementAt(index),
                                     _selectedTime,

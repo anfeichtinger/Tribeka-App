@@ -8,6 +8,7 @@ import 'package:tribeka/services/Scraper.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Latin1Transformer.dart';
 import 'package:tribeka/util/Shift.dart';
+import 'package:tribeka/util/ShiftRepository.dart';
 
 // Implementing the Singelton Pattern
 class Session {
@@ -161,10 +162,7 @@ class Session {
 
   void logout() async {
     await _get(baseURL);
-    _storage.delete(key: 'autologin');
-    _storage.delete(key: 'email');
-    _storage.delete(key: 'password');
-    _storage.delete(key: 'place');
+    ShiftRepository().clearAppData();
     debugPrint('DEBUG - Logged out');
   }
 
