@@ -242,7 +242,7 @@ class MonthScreenState extends State<MonthScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8))),
+                borderRadius: BorderRadius.all(Radius.circular(16))),
             title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -285,7 +285,7 @@ class MonthScreenState extends State<MonthScreen> {
           builder: (context) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8))),
+                  borderRadius: BorderRadius.all(Radius.circular(16))),
               title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -337,7 +337,7 @@ class MonthScreenState extends State<MonthScreen> {
           int to = DateTime.now().day;
           return AlertDialog(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8))),
+                borderRadius: BorderRadius.all(Radius.circular(16))),
             title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[Text("Krank melden"), Icon(MdiIcons.pill)]),

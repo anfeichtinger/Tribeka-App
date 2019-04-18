@@ -31,6 +31,8 @@ class ShiftScreenState extends State<ShiftScreen> {
   Shift _newShift;
   bool _modified = false;
   bool _valid = true;
+  bool _showError = false;
+  String _errorMsg = '';
 
   ShiftScreenState(this._initialShift, this._editable, this._selectedTime);
 
@@ -47,16 +49,16 @@ class ShiftScreenState extends State<ShiftScreen> {
   }
 
   void _checkValid() {
-    if (_modified) {
-      if (Validator.validateShift(_newShift)) {
-        setState(() {
-          _valid = true;
-        });
-      } else {
-        setState(() {
-          _valid = false;
-        });
-      }
+    String validationState = Validator.validateShift(_newShift);
+    if (validationState.isEmpty) {
+      setState(() {
+        _valid = true;
+      });
+    } else {
+      setState(() {
+        _valid = false;
+        _errorMsg = validationState;
+      });
     }
   }
 
@@ -142,6 +144,19 @@ class ShiftScreenState extends State<ShiftScreen> {
       }
     }
 
+    // Will fade in the error Text if _hasError is set to true
+    final _errorText = AnimatedOpacity(
+      opacity: _showError ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 300),
+      child: SizedBox(
+          width: 180,
+          child: Text(
+            _errorMsg,
+            textAlign: TextAlign.right,
+            style: TextStyle(color: Colors.red),
+          )),
+    );
+
     final _header = Padding(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,6 +170,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                     Text(DateFormat('MMMM, yyyy').format(_selectedTime),
                         style: TextStyle(fontSize: 14)),
                   ]),
+              _errorText,
               Hero(
                   tag: _newShift.day,
                   child: CircleAvatar(
@@ -395,10 +411,21 @@ class ShiftScreenState extends State<ShiftScreen> {
                             await globals.session
                                 .updateShift(_selectedTime, _newShift);
                             _dataSent = true;
+                            _valid = false;
+                            _showError = false;
                             Navigator.pop(context, _dataSent);
                           }
-                        : null
-                    : null,
+                        : () {
+                            setState(() {
+                              _showError = true;
+                            });
+                          }
+                    : () {
+                        setState(() {
+                          _errorMsg = 'Dieser Dienst wurde nicht verändert';
+                          _showError = true;
+                        });
+                      },
               )
             : SizedBox(height: 0)
         : SizedBox(height: 0);
@@ -411,6 +438,7 @@ class ShiftScreenState extends State<ShiftScreen> {
           icon: Icon(MdiIcons.arrowLeft),
           onPressed: () {
             _dataSent = false;
+            _showError = false;
             Navigator.pop(context, _dataSent);
           },
           tooltip: "Zurück",
@@ -422,6 +450,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                   await globals.session
                       .removeShift(_selectedTime, _initialShift);
                   _dataSent = true;
+                  _showError = false;
                   Navigator.pop(context, _dataSent);
                 },
                 tooltip: "Löschen",

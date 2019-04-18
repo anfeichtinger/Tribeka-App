@@ -31,7 +31,9 @@ class AddShiftScreenState extends State<AddShiftScreen> {
   static List<Tag> _templates = [];
   static bool _dataSent = false;
   static bool _valid = false;
+  static bool _showError = false;
   static TextEditingController _commentController;
+  static String _errorMsg = '';
 
   AddShiftScreenState(DateTime _selectedTime, this._presentDates) {
     _now =
@@ -44,16 +46,23 @@ class AddShiftScreenState extends State<AddShiftScreen> {
   }
 
   void _checkValid() {
-    // Todo: Error messages so the user knows what is wrong
-    if (Validator.validateShift(_shift) &&
-        !_presentDates.contains(int.parse(_shift.day))) {
-      setState(() {
-        _valid = true;
-      });
-    } else {
+    if (_presentDates.contains(int.parse(_shift.day))) {
       setState(() {
         _valid = false;
+        _errorMsg = 'Dieser Kalendertag ist bereits hinzugefügt worden';
       });
+    } else {
+      String validationState = Validator.validateShift(_shift);
+      if (validationState.isEmpty) {
+        setState(() {
+          _valid = true;
+        });
+      } else {
+        setState(() {
+          _valid = false;
+          _errorMsg = validationState;
+        });
+      }
     }
   }
 
@@ -144,9 +153,48 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       ShiftRepository().persistTag(_shift, title);
     }
 
+    _showTemplateInformationDialog() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16))),
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Vorlagen"),
+                  Icon(MdiIcons.informationOutline)
+                ]),
+            content: Text("Der schnellste Weg deine Stunden einzutragen! "
+                "Einfach deine Dienstzeit eingeben und rechts unten auf das speichern Symbol drücken. "
+                "Dort schreibst du den gewünschten Namen auf und drückst auf ok. "
+                "Ab sofort siehst du deine Vorlage anstelle der Information. "
+                "Um die Vorlage zu verwenden drücke auf sie, um sie zu löschen halte sie gedrückt."),
+            actions: [
+              FlatButton(
+                  onPressed: () => Navigator.pop(context), child: Text("OK")),
+            ],
+          );
+        },
+      );
+    }
+
     Widget _getTagWidgets() {
       if (_templates.length == 0) {
-        return SizedBox(height: 0);
+        return InkWell(
+            onTap: () => _showTemplateInformationDialog(),
+            child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Column(
+                  children: <Widget>[
+                    Text('Keine Vorlagen gefunden',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    SizedBox(height: 8),
+                    Icon(MdiIcons.informationOutline)
+                  ],
+                )));
       } else {
         return SelectableTags(
           tags: _templates,
@@ -192,7 +240,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8))),
+                borderRadius: BorderRadius.all(Radius.circular(16))),
             title: Text("Vorlage benennen"),
             content: TextField(autofocus: true, onChanged: (s) => _title = s),
             actions: [
@@ -247,10 +295,29 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       }
     }
 
-    final _header = Padding(
-        child: Text(DateFormat('MMMM, yyyy').format(_now),
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        padding: EdgeInsets.symmetric(horizontal: 16));
+    // Will fade in the error Text if _hasError is set to true
+    final _errorText = AnimatedOpacity(
+      opacity: _showError ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 300),
+      child: SizedBox(
+          width: 205,
+          child: Text(
+            _errorMsg,
+            textAlign: TextAlign.right,
+            style: TextStyle(color: Colors.red),
+          )),
+    );
+
+    final _header = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Padding(
+              child: Text(DateFormat('MMMM, yyyy').format(_now),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              padding: EdgeInsets.symmetric(horizontal: 16)),
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16), child: _errorText)
+        ]);
 
     final _dayTile = ListTile(
         onTap: () => _showPickerDate(context),
@@ -442,9 +509,14 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                     await globals.session.sendShift(_now, _shift);
                     _dataSent = true;
                     _valid = false;
+                    _showError = false;
                     Navigator.pop(context, _dataSent);
                   }
-                : null,
+                : () {
+                    setState(() {
+                      _showError = true;
+                    });
+                  },
           )
         : SizedBox(height: 0);
 
@@ -457,6 +529,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
           onPressed: () {
             _dataSent = false;
             _valid = false;
+            _showError = false;
             Navigator.pop(context, _dataSent);
           },
           tooltip: "Zurück",
@@ -466,6 +539,10 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             onPressed: () async {
               if (_valid) {
                 _showAddTemplatePrompt();
+              } else {
+                setState(() {
+                  _showError = true;
+                });
               }
             },
             tooltip: "Vorlage speichern"),
@@ -482,6 +559,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             onWillPop: () {
               _dataSent = false;
               _valid = false;
+              _showError = false;
               Navigator.pop(context, _dataSent);
             },
             child: Padding(
