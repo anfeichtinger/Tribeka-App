@@ -27,9 +27,9 @@ Weiters sind folgende Dependencies nicht in der pubspec.yaml zu finden, sondern 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.
 
-Login Bildschirm                                 |  Monatsübersicht                           |  Leerer Monat
+Login Bildschirm                                 |  Monatsübersicht                           |  Dienst hinzufügen
 :-----------------------------------------------:|:------------------------------------------:|:------------------------------------------------------:
-![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month_screen.png)  |  ![Empty Month Screen](./Screenshots/add_shift_screen.png)
+![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month_screen.png)  |  ![Add Shift Screen](./Screenshots/add_shift_screen.png)
 
 ## Wie kann ich das Projekt öffnen und bearbeiten?
 

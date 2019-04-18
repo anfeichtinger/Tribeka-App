@@ -1,16 +1,25 @@
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tribeka/util/Shift.dart';
 import 'package:tribeka/widgets/CustomSelectableTags.dart';
 
 class TagHandler {
-  final _storage = FlutterSecureStorage();
-  
+  SharedPreferences _prefs;
+
+  Future<Null> _createInstance() async {
+    if (_prefs == null) {
+      _prefs = await SharedPreferences.getInstance();
+    }
+  }
+
+  TagHandler() {}
+
   Future<List<Tag>> getTags() async {
+    await _createInstance();
     List<Tag> list = [];
 
-    String data = await _storage.read(key: "templates");
+    String data = _prefs.getString('templates');
     if (data != null && data.isNotEmpty) {
       final List<dynamic> jsonResult = json.decode(data);
       jsonResult.forEach((value) {
@@ -21,7 +30,8 @@ class TagHandler {
   }
 
   Future<List<Tag>> deletePersistedTag(String title) async {
-    String data = await _storage.read(key: "templates");
+    await _createInstance();
+    String data = _prefs.getString("templates");
     if (data == null || data.isEmpty) {
       data = '[]';
     } else {
@@ -32,13 +42,14 @@ class TagHandler {
       } else {
         data = jsonEncode(decData);
       }
-      _storage.write(key: "templates", value: data);
+      _prefs.setString("templates", data);
     }
     return await getTags();
   }
 
   Future<List<Tag>> persistTag(Shift shift, String title) async {
-    String data = await _storage.read(key: "templates");
+    await _createInstance();
+    String data = _prefs.getString("templates");
     if (data == null || data.isEmpty) {
       data = '[';
     } else {
@@ -47,19 +58,21 @@ class TagHandler {
     }
 
     data +=
-    '{"title": "$title","values": {"wFrom": "${shift.workFrom}","wTo": "${shift.workTo}","bFrom": "${shift.breakFrom}","bTo": "${shift.breakTo}"}}]';
+        '{"title": "$title","values": {"wFrom": "${shift.workFrom}","wTo": "${shift.workTo}","bFrom": "${shift.breakFrom}","bTo": "${shift.breakTo}"}}]';
 
-    _storage.write(key: "templates", value: data);
+    _prefs.setString("templates", data);
     return await getTags();
   }
 
   clearTags() async {
-    _storage.write(key: "templates", value: "");
+    await _createInstance();
+    _prefs.setString("templates", "");
   }
 
   Future<Shift> getPersistedShift(String title) async {
+    await _createInstance();
     Shift shift;
-    String data = await _storage.read(key: "templates");
+    String data = _prefs.getString("templates");
     if (data != null && data.isNotEmpty) {
       List<dynamic> decData = jsonDecode(data);
       decData.forEach((elem) {
@@ -71,5 +84,4 @@ class TagHandler {
     }
     return shift;
   }
-
 }
