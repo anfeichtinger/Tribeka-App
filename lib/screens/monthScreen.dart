@@ -221,7 +221,7 @@ class MonthScreenState extends State<MonthScreen> {
           viewportFraction: 0.25,
           onMonthChanged: (newTime) {
             _selectedTime = newTime;
-            _loadMonthData(false, false);
+            _loadMonthData(false, true);
           },
         ));
 

@@ -166,11 +166,49 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                   Text("Vorlagen"),
                   Icon(MdiIcons.informationOutline)
                 ]),
-            content: Text("Der schnellste Weg deine Stunden einzutragen! "
-                "Einfach deine Dienstzeit eingeben und rechts unten auf das speichern Symbol drücken. "
-                "Dort schreibst du den gewünschten Namen auf und drückst auf ok. "
-                "Ab sofort siehst du deine Vorlage anstelle der Information. "
-                "Um die Vorlage zu verwenden drücke auf sie, um sie zu löschen halte sie gedrückt."),
+            content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              Text(
+                  '...sind der schnellste Weg deine Stunden einzutragen. So geht\'s:'),
+              SizedBox(height: 8),
+              Row(children: <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Text('Trag deine Zeiten oben ein.')
+              ]),
+              Row(children: <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Text('Rechts unten Vorlage speichern.')
+              ]),
+              Row(children: <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Text('Die Vorlage benennen.')
+              ]),
+              Row(children: <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Text('Auf OK drücken.')
+              ]),
+              SizedBox(height: 8),
+              Row(children: <Widget>[
+                Icon(MdiIcons.fileDocumentEditOutline),
+                SizedBox(width: 8),
+                Expanded(
+                    child:
+                        Text('Auf die Vorlage drücken um diese anzuwenden.')),
+              ]),
+              SizedBox(height: 8),
+              Row(
+                children: <Widget>[
+                  Icon(MdiIcons.deleteOutline),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: Text(
+                          'Die Vorlage gedrückt halten um diese zu löschen'))
+                ],
+              )
+            ]),
             actions: [
               FlatButton(
                   onPressed: () => Navigator.pop(context), child: Text("OK")),
@@ -182,34 +220,45 @@ class AddShiftScreenState extends State<AddShiftScreen> {
 
     Widget _getTagWidgets() {
       if (_templates.length == 0) {
-        return InkWell(
-            onTap: () => _showTemplateInformationDialog(),
-            child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Column(
-                  children: <Widget>[
-                    Text('Keine Vorlagen gefunden',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    SizedBox(height: 8),
-                    Icon(MdiIcons.informationOutline)
-                  ],
-                )));
+        return Padding(
+            padding: EdgeInsets.all(8),
+            child: InkWell(
+                onTap: () => _showTemplateInformationDialog(),
+                child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      children: <Widget>[
+                        Text('Keine Vorlagen gefunden',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        SizedBox(height: 8),
+                        Icon(MdiIcons.informationOutline)
+                      ],
+                    ))));
       } else {
-        return SelectableTags(
-          tags: _templates,
-          backgroundContainer: Colors.transparent,
-          activeColor: Colors.grey[800],
-          onPressed: (tag) {
-            _applyTemplate(tag);
-          },
-          onLongPressed: (tag) {
-            setState(() {
-              _templates.remove(tag);
-            });
-            ShiftRepository().deletePersistedTag(tag.title);
-          },
-        );
+        return Stack(children: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: SelectableTags(
+                tags: _templates,
+                backgroundContainer: Colors.transparent,
+                activeColor: Colors.grey[800],
+                onPressed: (tag) {
+                  _applyTemplate(tag);
+                },
+                onLongPressed: (tag) {
+                  setState(() {
+                    _templates.remove(tag);
+                  });
+                  ShiftRepository().deletePersistedTag(tag.title);
+                },
+              )),
+          Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                  onPressed: () => _showTemplateInformationDialog(),
+                  icon: Icon(MdiIcons.informationOutline))),
+        ]);
       }
     }
 
@@ -295,7 +344,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       }
     }
 
-    // Will fade in the error Text if _hasError is set to true
+    // Will fade in the error Text if _showError is set to true
     final _errorText = AnimatedOpacity(
       opacity: _showError ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
@@ -581,11 +630,10 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                       SizedBox(height: 9.5),
                       _breakFromTile,
                       _breakToTile,
-                      SizedBox(height: 16),
+                      SizedBox(height: 10),
                       _comment,
-                      SizedBox(height: 16),
                       _getTagWidgets(),
-                      SizedBox(height: 16),
+                      SizedBox(height: 24),
                     ]))));
   }
 }
