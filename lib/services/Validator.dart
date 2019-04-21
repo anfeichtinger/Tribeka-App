@@ -1,4 +1,5 @@
 import 'package:tribeka/util/Shift.dart';
+import 'package:tribeka/widgets/CustomSelectableTags.dart';
 
 class Validator {
   static String validateEmail(String value) {
@@ -114,5 +115,15 @@ class Validator {
     } else {
       return 'Test';
     }
+  }
+
+  static String tagExists(List<Tag> tags, String title) {
+    if (title == null || title.isEmpty) {
+      return 'Name darf nicht leer sein';
+    }
+    if (tags.any((tag) => tag.title == title)) {
+      return 'So eine Vorlage existiert bereits';
+    }
+    return null;
   }
 }

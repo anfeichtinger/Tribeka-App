@@ -284,6 +284,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
 
     _showAddTemplatePrompt() async {
       String _title = '';
+      bool valid = false;
       final result = await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -291,15 +292,26 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16))),
             title: Text("Vorlage benennen"),
-            content: TextField(autofocus: true, onChanged: (s) => _title = s),
+            content: TextFormField(
+                autofocus: true,
+                autovalidate: true,
+                validator: (s) {
+                  _title = s;
+                  String result = Validator.tagExists(_templates, s);
+                  valid = result == null;
+                  debugPrint('Valid: $valid Result: $result');
+                  return result;
+                }),
             actions: [
               FlatButton(
                   onPressed: () => Navigator.pop(context, false),
                   child: Text("ABBRECHEN")),
               FlatButton(
-                  child: Text("JA"),
+                  child: Text("OK"),
                   onPressed: () {
-                    Navigator.pop(context, true);
+                    if (valid) {
+                      Navigator.pop(context, true);
+                    }
                   })
             ],
           );
