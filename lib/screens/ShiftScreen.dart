@@ -34,6 +34,11 @@ class ShiftScreenState extends State<ShiftScreen> {
   bool _showError = false;
   String _errorMsg = '';
 
+  static Color _workFromColor = Colors.black;
+  static Color _workToColor = Colors.black;
+  static Color _breakFromColor = Colors.black;
+  static Color _breakToColor = Colors.black;
+
   ShiftScreenState(this._initialShift, this._editable, this._selectedTime);
 
   void _checkModified() {
@@ -49,16 +54,124 @@ class ShiftScreenState extends State<ShiftScreen> {
   }
 
   void _checkValid() {
-    String validationState = Validator.validateShift(_newShift);
-    if (validationState.isEmpty) {
-      setState(() {
-        _valid = true;
-      });
-    } else {
-      setState(() {
-        _valid = false;
-        _errorMsg = validationState;
-      });
+    ShiftStatus validationState = Validator.validateShift(_newShift);
+    switch (validationState) {
+      case ShiftStatus.valid:
+        setState(() {
+          _valid = true;
+          _workFromColor = Colors.black;
+          _workToColor = Colors.black;
+          _breakFromColor = Colors.black;
+          _breakToColor = Colors.black;
+          _errorMsg = '';
+        });
+        break;
+      case ShiftStatus.workMissing:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.red;
+            _workToColor = Colors.red;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.black;
+          }
+          _errorMsg = 'Arbeitszeiten werden benötigt';
+        });
+        break;
+      case ShiftStatus.breakFromMissing:
+      case ShiftStatus.breakToMissing:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.red;
+            _breakToColor = Colors.red;
+          }
+          _errorMsg = 'Beide/Keine Pausen werden benötigt';
+        });
+        break;
+      case ShiftStatus.workToBeforeWorkFrom:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.red;
+            _workToColor = Colors.red;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.black;
+          }
+          _errorMsg = 'Arbeitsbeginn muss vor Arbeitsende liegen';
+        });
+        break;
+      case ShiftStatus.breakToAfterWorkTo:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.red;
+          }
+          _errorMsg = 'Pausenbeginn darf nicht nach Arbeitsende liegen';
+        });
+        break;
+      case ShiftStatus.breakFromBeforeWorkFrom:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.red;
+            _breakToColor = Colors.black;
+          }
+          _errorMsg = 'Pausenbeginn darf nicht vor Arbeitsbeginn liegen';
+        });
+        break;
+      case ShiftStatus.breakFromAfterWorkTo:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.red;
+            _breakToColor = Colors.black;
+          }
+          _errorMsg = 'Pausenbegionn darf nicht nach Arbeitende liegen';
+        });
+        break;
+      case ShiftStatus.breakToBeforeWorkTo:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.red;
+          }
+          _errorMsg = 'Pausenende darf nicht nach Arbeitbegin liegen';
+        });
+        break;
+      case ShiftStatus.breakFromAfterBreakTo:
+        setState(() {
+          _valid = false;
+          if (_showError) {
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.red;
+            _breakToColor = Colors.red;
+          }
+          _errorMsg = 'Pausenende darf nicht vor Pausenbeginn liegen';
+        });
+        break;
+      default:
+        setState(() {
+          _valid = false;
+          _workFromColor = Colors.red;
+          _workToColor = Colors.red;
+          _breakFromColor = Colors.red;
+          _breakToColor = Colors.red;
+          _errorMsg = 'Generic Error';
+        });
     }
   }
 
@@ -108,7 +221,7 @@ class ShiftScreenState extends State<ShiftScreen> {
       );
     }
 
-    _setBreakToValue(DateTime time) {
+    _adjustBreakTo(DateTime time) {
       switch (time.minute) {
         case 0:
         case 15:
@@ -127,6 +240,30 @@ class ShiftScreenState extends State<ShiftScreen> {
           setState(() {
             _newShift.breakTo =
                 '${(time.hour + 1).toString().padLeft(2, '0')}:15';
+          });
+          break;
+      }
+    }
+
+    _adjustWorkTo(DateTime time) {
+      switch (time.minute) {
+        case 0:
+        case 15:
+          setState(() {
+            _newShift.workTo =
+                '${(time.hour + 7).toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
+          });
+          break;
+        case 30:
+          setState(() {
+            _newShift.workTo =
+                '${(time.hour + 8).toString().padLeft(2, '0')}:00';
+          });
+          break;
+        case 45:
+          setState(() {
+            _newShift.workTo =
+                '${(time.hour + 8).toString().padLeft(2, '0')}:15';
           });
           break;
       }
@@ -191,7 +328,9 @@ class ShiftScreenState extends State<ShiftScreen> {
             ? () {
                 setState(() {
                   _newShift.workFrom = '-';
+                  _newShift.workTo = '-';
                 });
+                _checkModified();
                 _checkValid();
               }
             : () {},
@@ -203,6 +342,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                   _newShift.workFrom =
                       '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
                 });
+                _adjustWorkTo(_initial);
                 _checkValid();
                 showCupertinoModalPopup(
                     context: context,
@@ -217,6 +357,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                             _newShift.workFrom =
                                 '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
                           });
+                          _adjustWorkTo(newDateTime);
                           _checkModified();
                           _checkValid();
                         },
@@ -224,10 +365,16 @@ class ShiftScreenState extends State<ShiftScreen> {
                     });
               }
             : () {},
-        leading: Icon(MdiIcons.briefcaseOutline, color: Colors.grey[800]),
-        title: Text('Arbeit von', style: TextStyle(fontSize: 16)),
+        leading: Icon(MdiIcons.briefcaseOutline,
+            color:
+                _workFromColor == Colors.black ? Colors.grey[800] : Colors.red),
+        title: Text('Arbeit von',
+            style: TextStyle(fontSize: 16, color: _workFromColor)),
         trailing: Text(_newShift.workFrom,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _workFromColor)));
 
     final _workToTile = ListTile(
         onLongPress: _editable
@@ -268,15 +415,20 @@ class ShiftScreenState extends State<ShiftScreen> {
               }
             : () {},
         leading: Icon(null),
-        title: Text('Arbeit bis', style: TextStyle(fontSize: 16)),
+        title: Text('Arbeit bis',
+            style: TextStyle(fontSize: 16, color: _workToColor)),
         trailing: Text(_newShift.workTo,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _workToColor)));
 
     final _breakFromTile = ListTile(
         onLongPress: _editable
             ? () {
                 setState(() {
                   _newShift.breakFrom = '-';
+                  _newShift.breakTo = '-';
                 });
                 _checkValid();
               }
@@ -289,7 +441,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                   _newShift.breakFrom =
                       '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
                 });
-                _setBreakToValue(_initial);
+                _adjustBreakTo(_initial);
                 _checkValid();
                 showCupertinoModalPopup(
                     context: context,
@@ -304,7 +456,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                             _newShift.breakFrom =
                                 '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
                           });
-                          _setBreakToValue(newDateTime);
+                          _adjustBreakTo(newDateTime);
                           _checkModified();
                           _checkValid();
                         },
@@ -312,10 +464,17 @@ class ShiftScreenState extends State<ShiftScreen> {
                     });
               }
             : () {},
-        leading: Icon(MdiIcons.coffeeOutline, color: Colors.grey[800]),
-        title: Text('Pause von', style: TextStyle(fontSize: 16)),
+        leading: Icon(MdiIcons.coffeeOutline,
+            color: _breakFromColor == Colors.black
+                ? Colors.grey[800]
+                : Colors.red),
+        title: Text('Pause von',
+            style: TextStyle(fontSize: 16, color: _breakFromColor)),
         trailing: Text(_newShift.breakFrom,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _breakFromColor)));
 
     final _breakToTile = ListTile(
         onLongPress: _editable
@@ -357,9 +516,13 @@ class ShiftScreenState extends State<ShiftScreen> {
               }
             : () {},
         leading: Icon(null),
-        title: Text('Pause bis', style: TextStyle(fontSize: 16)),
+        title: Text('Pause bis',
+            style: TextStyle(fontSize: 16, color: _breakToColor)),
         trailing: Text(_newShift.breakTo,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _breakToColor)));
 
     final _comment = Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -419,6 +582,7 @@ class ShiftScreenState extends State<ShiftScreen> {
                             setState(() {
                               _showError = true;
                             });
+                            _checkValid();
                           }
                     : () {
                         setState(() {
@@ -439,6 +603,10 @@ class ShiftScreenState extends State<ShiftScreen> {
           onPressed: () {
             _dataSent = false;
             _showError = false;
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.black;
             Navigator.pop(context, _dataSent);
           },
           tooltip: "Zurück",

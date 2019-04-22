@@ -21,16 +21,16 @@ class Validator {
     }
   }
 
-  static String _validWork(Shift shift) {
+  static ShiftStatus _validWork(Shift shift) {
     if (shift.workFrom == '-' || shift.workTo == '-') {
-      return 'Es muss Arbeit von und Arbeit bis ausgefüllt werden';
+      return ShiftStatus.workMissing;
     } else {
       final _pattern = r'([0-9]{2}):([0-9]{2})';
       final _regex = RegExp(_pattern);
 
       if (!_regex.hasMatch(
           '${shift.workFrom.split(":")[0]}:${shift.workFrom.split(":")[1]}')) {
-        return 'Fehlerhafte Arbeits Formartierung';
+        return ShiftStatus.wrongFormat;
       }
 
       final _workFrom = DateTime(
@@ -43,18 +43,19 @@ class Validator {
           int.parse(shift.workTo.split(':')[1]));
 
       if (_workFrom.isAfter(_workTo) || _workFrom.isAtSameMomentAs(_workTo)) {
-        return 'Arbeit von muss vor Arbeit bis liegen';
+        return ShiftStatus.workToBeforeWorkFrom;
       }
     }
-    return '';
+    return ShiftStatus.valid;
   }
 
-  static String _validBreak(Shift shift) {
-    if (shift.breakFrom == '-' && shift.breakTo != '-' ||
-        shift.breakTo == '-' && shift.breakFrom != '-') {
-      return 'Es müssen beide/keine Pausen ausgeüllt werden';
+  static ShiftStatus _validBreak(Shift shift) {
+    if (shift.breakFrom == '-' && shift.breakTo != '-') {
+      return ShiftStatus.breakFromMissing;
+    } else if (shift.breakTo == '-' && shift.breakFrom != '-') {
+      return ShiftStatus.breakToMissing;
     } else if (shift.breakFrom == '-' && shift.breakTo == '-') {
-      return '';
+      return ShiftStatus.valid;
     }
 
     final _pattern = r'([0-9]{2}):([0-9]{2})';
@@ -62,7 +63,7 @@ class Validator {
 
     if (!_regex.hasMatch(
         '${shift.breakFrom.split(":")[0]}:${shift.breakTo.split(":")[1]}')) {
-      return 'Fehlerhafte Pausen Formartierung';
+      return ShiftStatus.wrongFormat;
     }
 
     final _breakFrom = DateTime(
@@ -84,36 +85,38 @@ class Validator {
       final _workTo = DateTime(0, 0, 0, int.parse(shift.workTo.split(':')[0]),
           int.parse(shift.workTo.split(':')[1]));
 
-      if (_breakTo.isAfter(_workTo) || _breakTo.isAtSameMomentAs(_workTo)) {
-        return 'Pause darf nicht nach Arbeitsende enden';
+      if (_breakFrom.isAfter(_breakTo) ||
+          _breakFrom.isAtSameMomentAs(_breakTo)) {
+        return ShiftStatus.breakFromAfterBreakTo;
       }
 
       if (_breakFrom.isBefore(_workFrom) ||
           _breakFrom.isAtSameMomentAs(_workFrom)) {
-        return 'Pause muss nach Abeitsbeginn liegen';
+        return ShiftStatus.breakFromBeforeWorkFrom;
       } else if (_breakFrom.isAfter(_workTo) ||
           _breakFrom.isAtSameMomentAs(_workTo)) {
-        return 'Pause darf nicht nach Arbeitsende liegen';
+        return ShiftStatus.breakFromAfterWorkTo;
+      }
+
+      if (_breakTo.isAfter(_workTo) || _breakTo.isAtSameMomentAs(_workTo)) {
+        return ShiftStatus.breakToBeforeWorkTo;
       }
     }
 
-    if (_breakFrom.isAfter(_breakTo) || _breakFrom.isAtSameMomentAs(_breakTo)) {
-      return 'Pausenebeginn muss vor Pausenende liegen';
-    }
-    return '';
+    return ShiftStatus.valid;
   }
 
-  static String validateShift(Shift shift) {
-    String workResult = _validWork(shift);
-    String breakResult = _validBreak(shift);
-    if (workResult.isEmpty && breakResult.isEmpty) {
-      return '';
-    } else if (workResult.isNotEmpty) {
+  static ShiftStatus validateShift(Shift shift) {
+    ShiftStatus workResult = _validWork(shift);
+    ShiftStatus breakResult = _validBreak(shift);
+    if (workResult == ShiftStatus.valid && breakResult == ShiftStatus.valid) {
+      return ShiftStatus.valid;
+    } else if (workResult != ShiftStatus.valid) {
       return workResult;
-    } else if (breakResult.isNotEmpty) {
+    } else if (breakResult != ShiftStatus.valid) {
       return breakResult;
     } else {
-      return 'Test';
+      return ShiftStatus.genericError;
     }
   }
 
@@ -126,4 +129,19 @@ class Validator {
     }
     return null;
   }
+}
+
+enum ShiftStatus {
+  genericError,
+  valid,
+  workMissing,
+  breakFromMissing,
+  breakToMissing,
+  wrongFormat,
+  workToBeforeWorkFrom,
+  breakToAfterWorkTo,
+  breakToBeforeWorkTo,
+  breakFromBeforeWorkFrom,
+  breakFromAfterWorkTo,
+  breakFromAfterBreakTo,
 }
