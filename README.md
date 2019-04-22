@@ -32,6 +32,13 @@ Login Bildschirm                                 |  Monatsübersicht            
 :-----------------------------------------------:|:------------------------------------------:|:------------------------------------------------------:
 ![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month_screen.png)  |  ![Add Shift Screen](./Screenshots/add_shift_screen.png)
 
+## Wie kann ich bei einem Update meine lokale Kopie aktualisieren?
+
+* Falls eigene Änderungen vorhanden sind, diese speichern oder entfernen. Entfernen mit `git stash clear`.
+* Das Aktualisierte Repository herunterladen mit `git pull`.
+* Das Projekt öffnen und `flutter packages get && flutter packages upgrade` ausführen.
+* Eventuell die alte App unter iOS oder Android deinstallieren. Danach sollte man die aktuellste Version installieren und ausführen können.
+
 ## Wie kann ich das Projekt öffnen und bearbeiten?
 
 Es wird sowohl **Android Studio** mit zwei **Plugins (Dart** und **Flutter)** benötigt, sowie das **Framework Flutter**. Alle Teile funktioneren auf Windows, Linux und Mac OSX.
