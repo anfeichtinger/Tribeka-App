@@ -249,21 +249,31 @@ class ShiftScreenState extends State<ShiftScreen> {
       switch (time.minute) {
         case 0:
         case 15:
+          int hour = time.hour + 7;
+          if (hour > 20) {
+            hour = 20;
+          }
           setState(() {
             _newShift.workTo =
-                '${(time.hour + 7).toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
+                '${hour.toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
           });
           break;
         case 30:
+          int hour = time.hour + 8;
+          if (hour > 20) {
+            hour = 20;
+          }
           setState(() {
-            _newShift.workTo =
-                '${(time.hour + 8).toString().padLeft(2, '0')}:00';
+            _newShift.workTo = '${hour.toString().padLeft(2, '0')}:00';
           });
           break;
         case 45:
+          int hour = time.hour + 8;
+          if (hour > 20) {
+            hour = 20;
+          }
           setState(() {
-            _newShift.workTo =
-                '${(time.hour + 8).toString().padLeft(2, '0')}:15';
+            _newShift.workTo = '${hour.toString().padLeft(2, '0')}:15';
           });
           break;
       }
@@ -338,11 +348,14 @@ class ShiftScreenState extends State<ShiftScreen> {
             ? () {
                 final _initial =
                     InitTimeGenerator.workFrom(_selectedTime, _newShift);
+                bool shouldSet = _newShift.workTo == '-';
                 setState(() {
                   _newShift.workFrom =
                       '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
                 });
-                _adjustWorkTo(_initial);
+                if (shouldSet) {
+                  _adjustWorkTo(_initial);
+                }
                 _checkValid();
                 showCupertinoModalPopup(
                     context: context,
@@ -357,7 +370,9 @@ class ShiftScreenState extends State<ShiftScreen> {
                             _newShift.workFrom =
                                 '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
                           });
-                          _adjustWorkTo(newDateTime);
+                          if (shouldSet) {
+                            _adjustWorkTo(newDateTime);
+                          }
                           _checkModified();
                           _checkValid();
                         },
@@ -381,6 +396,7 @@ class ShiftScreenState extends State<ShiftScreen> {
             ? () {
                 setState(() {
                   _newShift.workTo = '-';
+                  _newShift.workFrom = '-';
                 });
                 _checkValid();
               }
@@ -481,6 +497,7 @@ class ShiftScreenState extends State<ShiftScreen> {
             ? () {
                 setState(() {
                   _newShift.breakTo = '-';
+                  _newShift.breakFrom = '-';
                 });
                 _checkModified();
                 _checkValid();
