@@ -28,7 +28,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
   final List<int> _presentDates;
   static DateTime _now;
   static Shift _shift;
-  static List<Tag> _templates = [];
+  static List<Tag> _templates;
   static bool _dataSent = false;
   static bool _valid = false;
   static bool _showError = false;
@@ -205,6 +205,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
 
     _dataSent = false;
     _valid = false;
+    _templates = [];
 
     ShiftRepository().getTags().then((newList) {
       setState(() {
@@ -348,50 +349,6 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       );
     }
 
-    Widget _getTagWidgets() {
-      if (_templates.length == 0) {
-        return Padding(
-            padding: EdgeInsets.all(8),
-            child: InkWell(
-                onTap: () => _showTemplateInformationDialog(),
-                child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                      children: <Widget>[
-                        Text('Keine Vorlagen gefunden',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(height: 8),
-                        Icon(MdiIcons.informationOutline)
-                      ],
-                    ))));
-      } else {
-        return Stack(children: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(top: 16),
-              child: SelectableTags(
-                tags: _templates,
-                backgroundContainer: Colors.transparent,
-                activeColor: Colors.grey[800],
-                onPressed: (tag) {
-                  _applyTemplate(tag);
-                },
-                onLongPressed: (tag) {
-                  setState(() {
-                    _templates.remove(tag);
-                  });
-                  ShiftRepository().deletePersistedTag(tag.title);
-                },
-              )),
-          Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                  onPressed: () => _showTemplateInformationDialog(),
-                  icon: Icon(MdiIcons.informationOutline))),
-        ]);
-      }
-    }
-
     _showPickerDate(BuildContext context) {
       Picker(
           textStyle: TextStyle(fontSize: 24, color: Colors.black),
@@ -426,10 +383,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 autofocus: true,
                 autovalidate: true,
                 validator: (s) {
-                  _title = s;
                   String result = Validator.tagExists(_templates, s);
-                  valid = result == null;
-                  debugPrint('Valid: $valid Result: $result');
                   return result;
                 }),
             actions: [
@@ -764,6 +718,50 @@ class AddShiftScreenState extends State<AddShiftScreen> {
                 height: 1.0,
                 color: Colors.grey[500])));
 
+    Widget _getTagWidgets() {
+      if (_templates.length == 0) {
+        return Padding(
+            padding: EdgeInsets.all(8),
+            child: InkWell(
+                onTap: () => _showTemplateInformationDialog(),
+                child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      children: <Widget>[
+                        Text('Keine Vorlagen gefunden',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        SizedBox(height: 8),
+                        Icon(MdiIcons.informationOutline)
+                      ],
+                    ))));
+      } else {
+        return Stack(children: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: SelectableTags(
+                tags: _templates,
+                backgroundContainer: Colors.transparent,
+                activeColor: Colors.grey[800],
+                onPressed: (tag) {
+                  _applyTemplate(tag);
+                },
+                onLongPressed: (tag) {
+                  setState(() {
+                    _templates.remove(tag);
+                  });
+                  ShiftRepository().deletePersistedTag(tag.title);
+                },
+              )),
+          Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                  onPressed: () => _showTemplateInformationDialog(),
+                  icon: Icon(MdiIcons.informationOutline))),
+        ]);
+      }
+    }
+
     final _fab = _showFab
         ? FloatingActionButton.extended(
             elevation: 4.0,
@@ -833,6 +831,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               _dataSent = false;
               _valid = false;
               _showError = false;
+              _templates = null;
               Navigator.pop(context, _dataSent);
             },
             child: Padding(
