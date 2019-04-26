@@ -54,12 +54,14 @@ class AddShiftScreenState extends State<AddShiftScreen> {
   void _checkValid() {
     if (_presentDates.contains(int.parse(_shift.day))) {
       setState(() {
-        _valid = false;
-        _dayColor = Colors.red;
-        _workFromColor = Colors.black;
-        _workToColor = Colors.black;
-        _breakFromColor = Colors.black;
-        _breakToColor = Colors.black;
+        if (_showError) {
+          _valid = false;
+          _dayColor = Colors.red;
+          _workFromColor = Colors.black;
+          _workToColor = Colors.black;
+          _breakFromColor = Colors.black;
+          _breakToColor = Colors.black;
+        }
         _errorMsg = 'Dieser Kalendertag ist bereits hinzugefügt worden';
       });
     } else {

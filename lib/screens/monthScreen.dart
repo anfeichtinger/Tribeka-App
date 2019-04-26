@@ -214,7 +214,7 @@ class MonthScreenState extends State<MonthScreen> {
         margin: EdgeInsets.all(0),
         child: MonthStrip(
           format: 'MMM yyyy',
-          from: DateTime(2014, 1),
+          from: DateTime(2012, 1),
           to: DateTime(DateTime.now().year + 1, 12),
           initialMonth: _selectedTime,
           height: 48.0,
