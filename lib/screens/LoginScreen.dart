@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:tribeka/services/Session.dart';
 import 'package:tribeka/services/Validator.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
@@ -13,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   bool _hasError = false;
+  bool _connected = false;
   bool _loading = false;
   bool _autovalidateEmail = false;
   bool _autovalidatePw = false;
@@ -124,11 +126,13 @@ class LoginScreenState extends State<LoginScreen> {
         onFieldSubmitted: (v) {
           _pwFocus.unfocus();
           SystemChannels.textInput.invokeMethod('TextInput.hide');
-          if (validForm()) {
-            setState(() {
-              _loading = true;
-            });
-            login();
+          if (_connected) {
+            if (validForm()) {
+              setState(() {
+                _loading = true;
+              });
+              login();
+            }
           }
         });
 
@@ -152,42 +156,45 @@ class LoginScreenState extends State<LoginScreen> {
           ],
         ));
 
-    final _loginButton = AnimatedContainer(
-        duration: Duration(milliseconds: 250),
-        child: Container(
-            width: _loading ? 70 : double.infinity,
-            height: 50,
-            child: SizedBox.expand(
-              child: RawMaterialButton(
-                  shape: _loading
-                      ? CircleBorder()
-                      : RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                  elevation: 0.0,
-                  fillColor: Colors.grey[850],
-                  child: _loading
-                      ? CircularProgressIndicator(
-                          valueColor:
-                              new AlwaysStoppedAnimation<Color>(Colors.white))
-                      : Text('Anmelden',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold)),
-                  onPressed: () {
-                    if (validForm()) {
-                      setState(() {
-                        _loading = true;
-                      });
-                      login();
-                    }
-                  }),
-            )));
+    Widget _getLoginButton() {
+      return AnimatedContainer(
+          duration: Duration(milliseconds: 250),
+          child: Container(
+              width: _loading ? 70 : double.infinity,
+              height: 50,
+              child: SizedBox.expand(
+                child: RawMaterialButton(
+                    shape: _loading
+                        ? CircleBorder()
+                        : RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                    elevation: 0.0,
+                    fillColor: _connected ? Colors.grey[850] : Colors.grey[600],
+                    child: _loading
+                        ? CircularProgressIndicator(
+                            valueColor:
+                                new AlwaysStoppedAnimation<Color>(Colors.white))
+                        : Text('Anmelden',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold)),
+                    onPressed: _connected
+                        ? () {
+                            if (validForm()) {
+                              setState(() {
+                                _loading = true;
+                              });
+                              login();
+                            }
+                          }
+                        : null),
+              )));
+    }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: ListView(
+    _getBody() {
+      return ListView(
         physics: BouncingScrollPhysics(),
         shrinkWrap: true,
         padding: EdgeInsets.symmetric(horizontal: 32.0),
@@ -210,10 +217,42 @@ class LoginScreenState extends State<LoginScreen> {
           SizedBox(height: 16.0),
           _autoLogin,
           SizedBox(height: 16.0),
-          _loginButton,
+          _getLoginButton(),
           SizedBox(height: 92.0),
         ],
-      ),
-    );
+      );
+    }
+
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: OfflineBuilder(
+            connectivityBuilder: (
+              BuildContext context,
+              ConnectivityResult connectivity,
+              Widget child,
+            ) {
+              _connected = connectivity != ConnectivityResult.none;
+              return Stack(
+                alignment: Alignment.bottomCenter,
+                fit: StackFit.expand,
+                children: [
+                  _getBody(),
+                  _connected
+                      ? SizedBox(height: 0)
+                      : Positioned(
+                          height: 32.0,
+                          left: 0.0,
+                          right: 0.0,
+                          child: Container(
+                              color: Color(0xFFEE4400),
+                              child: Center(
+                                  child: Text('Keine Internetverbindung',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white)))),
+                        ),
+                ],
+              );
+            },
+            child: Text('')));
   }
 }

@@ -3,7 +3,7 @@ import 'package:tribeka/screens/ShiftScreen.dart';
 
 import '../util/Shift.dart';
 
-typedef Future<Null> ReloadCallback(bool reload, bool showLoading);
+typedef Future<Null> ReloadCallback({bool refresh, bool showLoading});
 
 class ShiftRow extends StatelessWidget {
   final Shift _shift;
@@ -20,7 +20,7 @@ class ShiftRow extends StatelessWidget {
     final result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => ShiftScreen(_shift, _editable, _selectedTime)));
     if (result) {
-      reloadCallback(true, false);
+      reloadCallback(refresh: true, showLoading: false);
     }
   }
 

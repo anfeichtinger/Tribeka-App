@@ -20,6 +20,7 @@ Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwe
 * [**flutter_picker:**]() für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
 * [**flutter_launcher_icons:**](https://pub.dartlang.org/packages/flutter_picker/versions/1.0.2) um das Launcher Icon zu generieren.
 * [**material_design_icons_flutter:**](https://pub.dartlang.org/packages/material_design_icons_flutter) Um die Material Icons nutzen zu können (Bietet mehr Umfag als die in Flutter enthaltenen Material Icons)
+* [**flutter_offline:**](https://pub.dartlang.org/packages/flutter_offline) Um zu erkennen wenn keine Internetverbindung vorhandten ist.
 
 Weiters sind folgende Dependencies nicht in der pubspec.yaml zu finden, sondern im Verzeichnis "lib/widgets".
 * [**month_picker_strip:**](https://github.com/mahmed8003/month_picker_strip) Von mir verändert um das Aussehen anzupassen.

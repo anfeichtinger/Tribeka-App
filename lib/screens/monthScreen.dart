@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:flutter_picker/Picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -16,8 +17,6 @@ import 'package:tribeka/widgets/ShiftRow.dart';
 
 import '../widgets/CustomMonthPickerStrip.dart';
 
-// We use the boolean to differentiate auto-login with manual login.
-// With auto-login you don't have the right State of Session().
 // In order to get the application to open as fast as possible the automatic
 // authentication is started after the layout is drawn.
 class MonthScreen extends StatefulWidget {
@@ -32,16 +31,17 @@ class MonthScreenState extends State<MonthScreen> {
   DateFormat dateFormat;
   DateTime _selectedTime = DateTime.now();
 
-  List<Shift> _shifts = new List();
+  List<Shift> _shifts = List();
   double _totalHours = 0.0;
   bool _loading = true;
   bool _monthEditable = false;
+  bool _connected = false;
 
   Future<Null> _checkLoginType() async {
     if (await _shiftRepo.monthIsPersisted(_selectedTime)) {
-      _loadMonthData(false, true);
+      _loadMonthData(refresh: false, showLoading: true);
     } else {
-      _loadMonthData(true, true);
+      _loadMonthData(refresh: true, showLoading: true);
     }
   }
 
@@ -145,17 +145,18 @@ class MonthScreenState extends State<MonthScreen> {
     if (onlineShifts == null) {
       return null;
     } else if (_shifts.length != onlineShifts.length) {
-      _loadMonthData(true, false);
+      _loadMonthData(refresh: true, showLoading: false);
     } else {
       for (int i = 0; i < onlineShifts.length; i++) {
         if (onlineShifts[i] != _shifts[i]) {
-          _loadMonthData(true, false);
+          _loadMonthData(refresh: true, showLoading: false);
         }
       }
     }
   }
 
-  Future<Null> _loadMonthData(bool refresh, bool showLoading) async {
+  Future<Null> _loadMonthData(
+      {@required bool refresh, @required bool showLoading}) async {
     if (showLoading) {
       _shifts.clear();
       setState(() {
@@ -164,6 +165,9 @@ class MonthScreenState extends State<MonthScreen> {
       });
     }
     bool edit;
+    if (!_connected) {
+      refresh = false;
+    }
     if (refresh) {
       _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
       edit = _session.isMonthEditable();
@@ -173,7 +177,9 @@ class MonthScreenState extends State<MonthScreen> {
       _shifts = await _shiftRepo.getPersistedMonthShifts(_selectedTime);
       edit = await _shiftRepo.monthIsEditable(_selectedTime);
       _totalHours = await _shiftRepo.getTotalHoursInMonth(_selectedTime);
-      _checkForUpdate();
+      if (_connected) {
+        _checkForUpdate();
+      }
     } else {
       _shifts = await _session.scrapShiftsFromMonth(_selectedTime);
       edit = _session.isMonthEditable();
@@ -183,10 +189,14 @@ class MonthScreenState extends State<MonthScreen> {
     await _prepareUser(_shifts);
     setState(() {
       _loading = false;
-      _monthEditable = edit;
+      if (_connected) {
+        _monthEditable = edit;
+      } else {
+        _monthEditable = false;
+      }
     });
-    if (_selectedTime.isAfter(_selectedTime.subtract(Duration(days: 366))) &&
-        _selectedTime.isBefore(_selectedTime.add(Duration(days: 32)))) {
+    if (_selectedTime.isAfter(DateTime.now().subtract(Duration(days: 366))) &&
+        _selectedTime.isBefore(DateTime.now().add(Duration(days: 32)))) {
       _shiftRepo.persistMonthShifts(_selectedTime, _shifts, edit, _totalHours);
     }
   }
@@ -202,7 +212,7 @@ class MonthScreenState extends State<MonthScreen> {
     final result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => AddShiftScreen(_selectedTime, _presentDates)));
     if (result) {
-      _loadMonthData(true, false);
+      _loadMonthData(refresh: true, showLoading: false);
     }
   }
 
@@ -221,7 +231,7 @@ class MonthScreenState extends State<MonthScreen> {
           viewportFraction: 0.25,
           onMonthChanged: (newTime) {
             _selectedTime = newTime;
-            _loadMonthData(false, true);
+            _loadMonthData(refresh: false, showLoading: true);
           },
         ));
 
@@ -317,7 +327,8 @@ class MonthScreenState extends State<MonthScreen> {
                             ? () async {
                                 Navigator.pop(context);
                                 await _session.finishMonth(_selectedTime);
-                                _loadMonthData(true, false);
+                                _loadMonthData(
+                                    refresh: true, showLoading: false);
                               }
                             : null,
                       );
@@ -389,7 +400,7 @@ class MonthScreenState extends State<MonthScreen> {
                       _monthEditable = false;
                     });
                     await _session.callInSick(_selectedTime, from, to);
-                    _loadMonthData(true, false);
+                    _loadMonthData(refresh: true, showLoading: false);
                   })
             ],
           );
@@ -438,45 +449,79 @@ class MonthScreenState extends State<MonthScreen> {
         floatingActionButton: _fab,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: _bottomNavBar,
-        body: SafeArea(
-            child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            _monthStrip,
-            SizedBox(height: 1),
-            Expanded(
-              child: _loading
-                  ? Center(
-                      child: CircularProgressIndicator(
-                      strokeWidth: 5,
-                    ))
-                  : _shifts.isEmpty
-                      ? Container(
-                          child: Center(
-                              child: Column(children: <Widget>[
-                          Image.asset('assets/no_shift_found.png', height: 256),
-                          Text('Keine Dienste',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18))
-                        ])))
-                      : ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          padding: EdgeInsets.fromLTRB(6, 6, 6, 30),
-                          itemCount: _shifts.length + 1,
-                          itemBuilder: (BuildContext context, int index) {
-                            bool _last = index == _shifts.length;
-                            return _last
-                                ? MonthSummaryRow(_totalHours)
-                                : ShiftRow(
-                                    _shifts.elementAt(index),
-                                    _selectedTime,
-                                    _monthEditable,
-                                    _loadMonthData);
-                          }),
-            )
-          ],
-        )));
+        body: OfflineBuilder(
+            connectivityBuilder: (
+              BuildContext context,
+              ConnectivityResult connectivity,
+              Widget child,
+            ) {
+              final _newConnected = connectivity != ConnectivityResult.none;
+              if (_connected != _newConnected) {
+                _connected = _newConnected;
+                _loadMonthData(refresh: false, showLoading: false);
+              }
+              return Stack(
+                alignment: Alignment.bottomCenter,
+                fit: StackFit.expand,
+                children: [
+                  child,
+                  _connected
+                      ? SizedBox(height: 0)
+                      : Positioned(
+                          height: 32.0,
+                          left: 0.0,
+                          right: 0.0,
+                          child: Container(
+                              color: Color(0xFFEE4400),
+                              child: Center(
+                                  child: Text('Keine Internetverbindung',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white)))),
+                        ),
+                ],
+              );
+            },
+            child: SafeArea(
+                child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                _monthStrip,
+                SizedBox(height: 1),
+                Expanded(
+                  child: _loading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                          strokeWidth: 5,
+                        ))
+                      : _shifts.isEmpty
+                          ? Container(
+                              child: Center(
+                                  child: Column(children: <Widget>[
+                              Image.asset('assets/no_shift_found.png',
+                                  height: 256),
+                              Text('Keine Dienste',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18))
+                            ])))
+                          : ListView.builder(
+                              physics: BouncingScrollPhysics(),
+                              padding: EdgeInsets.fromLTRB(6, 6, 6, 30),
+                              itemCount: _shifts.length + 1,
+                              itemBuilder: (BuildContext context, int index) {
+                                bool _last = index == _shifts.length;
+                                return _last
+                                    ? MonthSummaryRow(_totalHours)
+                                    : ShiftRow(
+                                        _shifts.elementAt(index),
+                                        _selectedTime,
+                                        _monthEditable,
+                                        _loadMonthData);
+                              }),
+                )
+              ],
+            ))));
   }
 }

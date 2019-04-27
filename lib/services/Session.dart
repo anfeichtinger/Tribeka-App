@@ -162,9 +162,9 @@ class Session {
   }
 
   void logout() async {
-    await _get(baseURL);
     ShiftRepository().clearAppData();
-    debugPrint('DEBUG - Logged out');
+    _storage.deleteAll();
+    await _get(baseURL);
   }
 
   Future<Null> sendShift(DateTime selectedTime, Shift shift) async {

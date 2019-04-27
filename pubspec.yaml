@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^0.5.2
   intl: ^0.15.8
   material_design_icons_flutter: ^3.2.3595
+  flutter_offline: "^0.2.4"
   flutter_picker:
     git: git://github.com/yangyxd/flutter_picker.git
 
