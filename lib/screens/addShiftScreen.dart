@@ -382,8 +382,12 @@ class AddShiftScreenState extends State<AddShiftScreen> {
             content: TextFormField(
                 autofocus: true,
                 autovalidate: true,
-                validator: (s) {
-                  String result = Validator.tagExists(_templates, s);
+                validator: (content) {
+                  String result = Validator.tagExists(_templates, content);
+                  valid = result == null;
+                  if (valid) {
+                    _title = content;
+                  }
                   return result;
                 }),
             actions: [
@@ -393,6 +397,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               FlatButton(
                   child: Text("OK"),
                   onPressed: () {
+                    debugPrint(valid.toString());
                     if (valid) {
                       Navigator.pop(context, true);
                     }
