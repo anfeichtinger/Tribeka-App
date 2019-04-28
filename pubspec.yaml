@@ -1,7 +1,8 @@
 name: tribeka
 description: Der schnellste Weg deine Arbeitsstunden einzutragen.
 
-version: 1.0.0
+version: 0.9.0
+versionName: "Closed-Beta"
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
