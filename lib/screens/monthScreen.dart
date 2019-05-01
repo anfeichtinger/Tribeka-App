@@ -126,6 +126,7 @@ class MonthScreenState extends State<MonthScreen> {
           });
           if (places.length == 1) {
             globals.user.place = places[0];
+            _storage.write(key: 'place', value: globals.user.place);
           } else {
             await _showPlacePickerPrompt();
           }
