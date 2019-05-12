@@ -126,7 +126,9 @@ class MonthScreenState extends State<MonthScreen> {
           });
           if (places.length == 1) {
             globals.user.place = places[0];
-            _storage.write(key: 'place', value: globals.user.place);
+            if (await _storage.read(key: 'place') != globals.user.place) {
+              _storage.write(key: 'place', value: globals.user.place);
+            }
           } else {
             await _showPlacePickerPrompt();
           }
@@ -354,13 +356,13 @@ class MonthScreenState extends State<MonthScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[Text("Krank melden"), Icon(MdiIcons.pill)]),
             content: Container(
-              height: 198,
+              height: 180,
               child: Column(
                 children: <Widget>[
                   Text('In diesem Monat krank melden von: '),
                   Picker(
                       textStyle: TextStyle(fontSize: 24, color: Colors.black),
-                      height: 80,
+                      height: 70,
                       hideHeader: true,
                       columnPadding:
                           EdgeInsets.symmetric(horizontal: 0, vertical: 0),
@@ -374,7 +376,7 @@ class MonthScreenState extends State<MonthScreen> {
                   Text('bis:'),
                   Picker(
                       textStyle: TextStyle(fontSize: 24, color: Colors.black),
-                      height: 80,
+                      height: 70,
                       hideHeader: true,
                       columnPadding:
                           EdgeInsets.symmetric(horizontal: 0, vertical: 0),

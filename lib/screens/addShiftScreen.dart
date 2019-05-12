@@ -304,22 +304,22 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               Row(children: <Widget>[
                 Icon(MdiIcons.circleSmall),
                 SizedBox(width: 8),
-                Text('Trag deine Zeiten oben ein.')
+                Expanded(child: Text('Trag deine Zeiten oben ein.'))
               ]),
               Row(children: <Widget>[
                 Icon(MdiIcons.circleSmall),
                 SizedBox(width: 8),
-                Text('Rechts unten Vorlage speichern.')
+                Expanded(child: Text('Rechts unten Vorlage speichern.'))
               ]),
               Row(children: <Widget>[
                 Icon(MdiIcons.circleSmall),
                 SizedBox(width: 8),
-                Text('Die Vorlage benennen.')
+                Expanded(child: Text('Die Vorlage benennen.'))
               ]),
               Row(children: <Widget>[
                 Icon(MdiIcons.circleSmall),
                 SizedBox(width: 8),
-                Text('Auf OK drücken.')
+                Expanded(child: Text('Auf OK drücken.'))
               ]),
               SizedBox(height: 8),
               Row(children: <Widget>[
@@ -485,7 +485,10 @@ class AddShiftScreenState extends State<AddShiftScreen> {
       opacity: _showError ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
       child: SizedBox(
-          width: 205,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width / 2,
           child: Text(
             _errorMsg,
             textAlign: TextAlign.right,
@@ -837,6 +840,10 @@ class AddShiftScreenState extends State<AddShiftScreen> {
               _valid = false;
               _showError = false;
               _templates = null;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.black;
               Navigator.pop(context, _dataSent);
             },
             child: Padding(

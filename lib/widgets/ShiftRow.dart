@@ -66,12 +66,18 @@ class ShiftRow extends StatelessWidget {
             ),
             tag: _shift.day,
           ),
-          title: Text(
-              '${_shift.weekday.substring(0, 2)}, ${_shift.workFrom} - ${_shift.workTo}',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                    '${_shift.weekday.substring(0, 2)}, ${_shift
+                        .workFrom} - ${_shift.workTo}',
+                    style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                Text('${_shift.getHours()}h', style: TextStyle(fontSize: 14))
+              ]),
           subtitle: subtitle == null ? null : subtitle,
           isThreeLine: isThreeLine == null ? false : isThreeLine,
-          trailing: Text('${_shift.hours[0]}h'),
         ));
   }
 

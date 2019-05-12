@@ -295,8 +295,11 @@ class ShiftScreenState extends State<ShiftScreen> {
     final _errorText = AnimatedOpacity(
       opacity: _showError ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
-      child: SizedBox(
-          width: 180,
+      child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: 50, maxWidth: MediaQuery
+              .of(context)
+              .size
+              .width / 3),
           child: Text(
             _errorMsg,
             textAlign: TextAlign.right,
@@ -620,6 +623,9 @@ class ShiftScreenState extends State<ShiftScreen> {
           onPressed: () {
             _dataSent = false;
             _showError = false;
+            _modified = false;
+            _valid = true;
+            _errorMsg = '';
             _workFromColor = Colors.black;
             _workToColor = Colors.black;
             _breakFromColor = Colors.black;
@@ -653,6 +659,14 @@ class ShiftScreenState extends State<ShiftScreen> {
         body: WillPopScope(
             onWillPop: () {
               _dataSent = false;
+              _modified = false;
+              _valid = true;
+              _showError = false;
+              _errorMsg = '';
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.black;
               Navigator.pop(context, _dataSent);
             },
             child: Padding(

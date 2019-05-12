@@ -27,6 +27,14 @@ class Shift {
     );
   }
 
+  String getHours() {
+    if (int.parse(hours.split(',')[1]) > 0) {
+      return hours;
+    } else {
+      return hours.substring(0, 1);
+    }
+  }
+
   @override
   String toString() {
     return "\nWeekday: $weekday,\n Day: $day,\n WorkFrom: $workFrom,\n WorkTo: $workTo,\n BreakFrom: $breakFrom,\n BreakTo: $breakTo,\n Place: $place,\n Comment: $comment,\n $hours\n";
