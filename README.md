@@ -6,7 +6,6 @@ Dies ist das Git Repository für die **Projektarbeit/Bachlorarbeit** von **Andre
 
 Inhalt dieses Projektes ist eine auf dem Framework Flutter basierende App, welche es mobilen Geräten erlaubt die Arbeitsstunden in der Firma Tribeka festzuhalten.
 **Wichtig ist hierbei, dass es zwingend notwendig ist Zugang zu einem existierenden Account zu haben.** Da keine API zur Verfügung steht wird über die App mit dem Webserver kommuniziert, wobei die Response des Servers von der App analysiert wird. Mittels Web-Scraping werden die relevanten Daten extrahiert und zu leicht bearbeitbaren Objekten umgewandelt.
-Hinweis: Dieses Projekt befindet sich in der Beta-Phase. Alle Features sollten bereits erwartungsgemäß funktionieren, jedoch kann es noch zu Bugs oder Änderungen kommen.
 
 **Ziel** dieses Projektes ist es, das Eintragen der Arbeitsstunden so einfach und schnell wie möglich abzuwickeln. Aus diesem Grund ist es möglich innerhalb der App selbst Vorlagen abzuspeichern, wodurch der Benutzer seine Arbeitszeiten innerhalb von wenigen Sekunden aufzeichnen kann.
 
@@ -17,8 +16,7 @@ Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwe
 * [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) um sicherheitskritische Daten verschlüsselt zu speichern z.B Passwort
 * [**shared_preferences:**](https://pub.dartlang.org/packages/shared_preferences) um normale Daten zu speichern z.B Fertiggestellte Monate
 * [**intl:**](https://pub.dartlang.org/packages/intl) für die Übersetzung der Namen der Monate.
-* [**flutter_picker:**]() für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
-* [**flutter_launcher_icons:**](https://pub.dartlang.org/packages/flutter_picker/versions/1.0.2) um das Launcher Icon zu generieren.
+* [**flutter_picker:**](https://pub.dev/packages/flutter_picker) für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
 * [**material_design_icons_flutter:**](https://pub.dartlang.org/packages/material_design_icons_flutter) Um die Material Icons nutzen zu können (Bietet mehr Umfag als die in Flutter enthaltenen Material Icons)
 * [**flutter_offline:**](https://pub.dartlang.org/packages/flutter_offline) Um zu erkennen wenn keine Internetverbindung vorhandten ist.
 
