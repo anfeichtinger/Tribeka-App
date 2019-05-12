@@ -37,7 +37,7 @@ class Shift {
 
   @override
   String toString() {
-    return "\nWeekday: $weekday,\n Day: $day,\n WorkFrom: $workFrom,\n WorkTo: $workTo,\n BreakFrom: $breakFrom,\n BreakTo: $breakTo,\n Place: $place,\n Comment: $comment,\n $hours\n";
+    return "Weekday: $weekday,\n Day: $day,\n WorkFrom: $workFrom,\n WorkTo: $workTo,\n BreakFrom: $breakFrom,\n BreakTo: $breakTo,\n Place: $place,\n Comment: $comment,\n $hours\n";
   }
 
   @override
