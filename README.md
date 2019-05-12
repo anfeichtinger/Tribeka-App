@@ -35,7 +35,7 @@ Login Bildschirm                                 |  Monatsübersicht            
 
 * Falls eigene Änderungen vorhanden sind, diese speichern oder entfernen. Entfernen mit `git stash clear`.
 * Das Aktualisierte Repository herunterladen mit `git pull`.
-* Das Projekt öffnen und `flutter packages get && flutter packages upgrade` ausführen.
+* Das Projekt öffnen und `flutter packages get && flutter packages upgrade` ausführen. (eventuell auch `flutter upgrade` um die aktuellste Version von Flutter zu installieren)
 * Eventuell die alte App unter iOS oder Android deinstallieren. Danach sollte man die aktuellste Version installieren und ausführen können.
 
 ## Wie kann ich das Projekt öffnen und bearbeiten?
