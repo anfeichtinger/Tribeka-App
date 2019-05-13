@@ -27,9 +27,9 @@ Weiters sind folgende Dependencies nicht in der pubspec.yaml zu finden, sondern 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.
 
-Login Bildschirm                                 |  Monatsübersicht                           |  Dienst hinzufügen
-:-----------------------------------------------:|:------------------------------------------:|:------------------------------------------------------:
-![Login Screen](./Screenshots/login_screen.png)  |  ![Month Screen](./Screenshots/month_screen.png)  |  ![Add Shift Screen](./Screenshots/add_shift_screen.png)
+Login                                              |  Übersicht                                          |  Vorlagen
+:-------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------------------:
+![Login Screen](./Screenshots/Presentation/0.jpg)  |  ![Month Screen](./Screenshots/Presentation/1.jpg)  |  ![Add Shift Screen](./Screenshots/Presentation/2.jpg)
 
 ## Wie kann ich bei einem Update meine lokale Kopie aktualisieren?
 
