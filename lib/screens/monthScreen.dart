@@ -191,7 +191,7 @@ class MonthScreenState extends State<MonthScreen> {
     }
     await _prepareUser(_shifts);
     setState(() {
-      _loading = false;
+      if (_loading != false) _loading = false;
       if (_connected) {
         _monthEditable = edit;
       } else {
