@@ -488,7 +488,7 @@ class AddShiftScreenState extends State<AddShiftScreen> {
           width: MediaQuery
               .of(context)
               .size
-              .width / 2,
+              .width / 3 + 10,
           child: Text(
             _errorMsg,
             textAlign: TextAlign.right,
