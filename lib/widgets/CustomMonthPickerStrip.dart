@@ -15,7 +15,7 @@ const PageScrollPhysics _kPagePhysics = const PageScrollPhysics();
 const TextStyle _selectedTextStyle = const TextStyle(
   // I had to change some colors in order to match the Apps Theme
   color: const Color(0xFF000000),
-  fontSize: 16.0,
+  fontSize: 17.0,
   fontWeight: FontWeight.w600,
 );
 
@@ -70,7 +70,7 @@ class MonthStrip extends StatefulWidget {
           continue;
         }
 
-        var item = new _MonthItem(new DateTime(i, j), selected: false);
+        final item = _MonthItem(DateTime(i, j), selected: false);
         if (initialMonth != null) {
           if (item.time.year == initialMonth.year &&
               item.time.month == initialMonth.month) {
@@ -82,10 +82,10 @@ class MonthStrip extends StatefulWidget {
       }
     }
 
-    return new _MonthStripState(
+    return _MonthStripState(
         viewportFraction: viewportFraction,
         initialPage: initialPage,
-        dateFormat: new DateFormat(format),
+        dateFormat: DateFormat(format),
         months: months);
   }
 }
@@ -98,7 +98,7 @@ class _MonthStripState extends State<MonthStrip> {
 
   _MonthStripState(
       {double viewportFraction, int initialPage, this.dateFormat, this.months})
-      : controller = new PageController(
+      : controller = PageController(
             viewportFraction: viewportFraction, initialPage: initialPage),
         _lastReportedPage = initialPage;
 
@@ -106,9 +106,9 @@ class _MonthStripState extends State<MonthStrip> {
   Widget build(BuildContext context) {
     final AxisDirection axisDirection = AxisDirection.right;
     final ScrollPhysics physics = _kPagePhysics.applyTo(widget.physics);
-    return new Container(
+    return Container(
       height: widget.height,
-      child: new NotificationListener<ScrollEndNotification>(
+      child: NotificationListener<ScrollEndNotification>(
         onNotification: (ScrollEndNotification notification) {
           if (notification.depth == 0 &&
               widget.onMonthChanged != null &&
@@ -119,30 +119,30 @@ class _MonthStripState extends State<MonthStrip> {
               _lastReportedPage = currentPage;
 
               setState(() {
-                for (var item in months) {
+                for (final item in months) {
                   item.selected = false;
                 }
-                var m = months[currentPage];
-                var d = m.time;
+                final m = months[currentPage];
+                final d = m.time;
                 m.selected = true;
-                widget.onMonthChanged(new DateTime(d.year, d.month));
+                widget.onMonthChanged(DateTime(d.year, d.month));
               });
             }
           }
           return false;
         },
-        child: new Scrollable(
+        child: Scrollable(
           axisDirection: axisDirection,
           controller: controller,
           physics: physics,
           viewportBuilder: (BuildContext context, ViewportOffset position) {
-            return new Viewport(
+            return Viewport(
               axisDirection: axisDirection,
               offset: position,
               slivers: <Widget>[
-                new SliverFillViewport(
+                SliverFillViewport(
                   viewportFraction: controller.viewportFraction,
-                  delegate: new SliverChildBuilderDelegate(_buildContent,
+                  delegate: SliverChildBuilderDelegate(_buildContent,
                       childCount: months.length),
                 ),
               ],
@@ -155,27 +155,23 @@ class _MonthStripState extends State<MonthStrip> {
 
   Widget _buildContent(BuildContext context, int index) {
     final item = months[index];
-    return new Container(
-      child: new Center(
-        child: new GestureDetector(
-          child: new Text(
-            dateFormat.format(item.time),
-            style: item.selected
-                ? widget.selectedTextStyle
-                : widget.normalTextStyle,
-          ),
-          onTap: () {
-            if (_lastReportedPage != index) {
-              controller.animateToPage(
-                index,
-                duration: new Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            }
-          },
-        ),
-      ),
-    );
+    return InkWell(
+        onTap: () {
+          if (_lastReportedPage != index) {
+            controller.animateToPage(
+              index,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.ease,
+            );
+          }
+        },
+        child: Center(
+            child: Text(
+              dateFormat.format(item.time),
+              textAlign: TextAlign.center,
+              style:
+              item.selected ? widget.selectedTextStyle : widget.normalTextStyle,
+            )));
   }
 }
 
