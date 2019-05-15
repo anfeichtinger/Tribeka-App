@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomAppBar {
-  static final dark = AppBar(
-    automaticallyImplyLeading: false,
-    brightness: Brightness.dark,
-    backgroundColor: Colors.grey[850],
-    centerTitle: true,
-    title: Text(
-      "tribeka",
-      style:
-          TextStyle(fontFamily: 'Tribeka', fontSize: 30.0, color: Colors.white),
-    ),
-  );
-
+  // Reliable Way to color status bar icons grey
   static final gone = PreferredSize(
       child: AppBar(
         brightness: Brightness.light,
