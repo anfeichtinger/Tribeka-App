@@ -224,6 +224,14 @@ class MonthScreenState extends State<MonthScreen> {
     }
   }
 
+  void _deleteCallback(Shift shift) async {
+    setState(() {
+      _shifts.remove(shift);
+    });
+    await globals.session.removeShift(_selectedTime, shift);
+    _shiftRepo.persistMonthShifts(_selectedTime, _shifts, true, _totalHours);
+  }
+
   @override
   Widget build(BuildContext context) {
     final _monthStrip = Card(
@@ -233,7 +241,7 @@ class MonthScreenState extends State<MonthScreen> {
         child: MonthStrip(
           format: 'MMM yyyy',
           from: DateTime(2012, 1),
-          to: DateTime(DateTime.now().year + 1, 12),
+          to: DateTime.now().add(Duration(days: 90)),
           initialMonth: _selectedTime,
           height: 48.0,
           viewportFraction: 0.25,
@@ -350,70 +358,72 @@ class MonthScreenState extends State<MonthScreen> {
 
     _showCallInSickPrompt() {
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          int from = DateTime.now().day;
-          int to = DateTime.now().day;
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16))),
-            title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[Text("Krank melden"), Icon(MdiIcons.pill)]),
-            content: Container(
-              height: 180,
-              child: Column(
-                children: <Widget>[
-                  Text('In diesem Monat krank melden von: '),
-                  Picker(
-                      textStyle: TextStyle(fontSize: 24, color: Colors.black),
-                      height: 70,
-                      hideHeader: true,
-                      columnPadding:
+          context: context,
+          builder: (BuildContext context) {
+            int from = DateTime
+                .now()
+                .day;
+            int to = DateTime
+                .now()
+                .day;
+            return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16))),
+                title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text("Krank melden"),
+                      Icon(MdiIcons.pill)
+                    ]),
+                content: Container(
+                    height: 180,
+                    child: Column(children: <Widget>[
+                      Text('In diesem Monat krank melden von: '),
+                      Picker(
+                          textStyle:
+                          TextStyle(fontSize: 24, color: Colors.black),
+                          height: 70,
+                          hideHeader: true,
+                          columnPadding:
                           EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                      adapter: DateTimePickerAdapter(
-                        value: DateTime.now(),
-                        customColumnType: [2],
-                      ),
-                      onSelect: (Picker picker, int i, List value) {
-                        from = value.last + 1;
-                      }).makePicker(),
-                  Text('bis:'),
-                  Picker(
-                      textStyle: TextStyle(fontSize: 24, color: Colors.black),
-                      height: 70,
-                      hideHeader: true,
-                      columnPadding:
+                          adapter: DateTimePickerAdapter(
+                              value: DateTime.now(), customColumnType: [2]),
+                          onSelect: (Picker picker, int i, List value) {
+                            from = value.last + 1;
+                          }).makePicker(),
+                      Text('bis:'),
+                      Picker(
+                          textStyle:
+                          TextStyle(fontSize: 24, color: Colors.black),
+                          height: 70,
+                          hideHeader: true,
+                          columnPadding:
                           EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                      adapter: DateTimePickerAdapter(
-                        value: DateTime.now(),
-                        customColumnType: [2],
-                      ),
-                      onSelect: (Picker picker, int i, List value) {
-                        to = value.last + 1;
-                      }).makePicker()
-                ],
-              ),
-            ),
-            actions: [
-              FlatButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("ABBRECHEN")),
-              FlatButton(
-                  child: Text("SENDEN"),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    setState(() {
-                      _loading = true;
-                      _monthEditable = false;
-                    });
-                    await _session.callInSick(_selectedTime, from, to);
-                    _loadMonthData(refresh: true, showLoading: false);
-                  })
-            ],
-          );
-        },
-      );
+                          adapter: DateTimePickerAdapter(
+                              value: DateTime.now(), customColumnType: [2]),
+                          onSelect: (Picker picker, int i, List value) {
+                            to = value.last + 1;
+                          }).makePicker()
+                    ])),
+                actions: [
+                  FlatButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("ABBRECHEN")),
+                  FlatButton(
+                      child: Text("SENDEN"),
+                      onPressed: () async {
+                        if (from <= to) {
+                          Navigator.pop(context);
+                          setState(() {
+                            _loading = true;
+                            _monthEditable = false;
+                          });
+                          await _session.callInSick(_selectedTime, from, to);
+                          _loadMonthData(refresh: true, showLoading: false);
+                        }
+                      })
+                ]);
+          });
     }
 
     final _bottomNavBar = BottomAppBar(
@@ -542,7 +552,8 @@ class MonthScreenState extends State<MonthScreen> {
                                         _shifts.elementAt(index),
                                         _selectedTime,
                                         _monthEditable,
-                                        _loadMonthData);
+                                    _loadMonthData,
+                                    _deleteCallback);
                               }),
                 )
               ],

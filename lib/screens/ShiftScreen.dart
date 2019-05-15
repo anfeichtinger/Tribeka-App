@@ -296,7 +296,8 @@ class ShiftScreenState extends State<ShiftScreen> {
       opacity: _showError ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
       child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: 50, maxWidth: MediaQuery
+          constraints: BoxConstraints(
+              minWidth: 50, maxWidth: MediaQuery
               .of(context)
               .size
               .width / 3),
@@ -616,39 +617,25 @@ class ShiftScreenState extends State<ShiftScreen> {
 
     final _bottomNavBar = BottomAppBar(
         child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(MdiIcons.arrowLeft),
-          onPressed: () {
-            _dataSent = false;
-            _showError = false;
-            _modified = false;
-            _valid = true;
-            _errorMsg = '';
-            _workFromColor = Colors.black;
-            _workToColor = Colors.black;
-            _breakFromColor = Colors.black;
-            _breakToColor = Colors.black;
-            Navigator.pop(context, _dataSent);
-          },
-          tooltip: "Zurück",
-        ),
-        _editable
-            ? IconButton(
-                icon: Icon(MdiIcons.deleteOutline),
-                onPressed: () async {
-                  await globals.session
-                      .removeShift(_selectedTime, _initialShift);
-                  _dataSent = true;
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(MdiIcons.arrowLeft),
+                onPressed: () {
+                  _dataSent = false;
                   _showError = false;
+                  _modified = false;
+                  _valid = true;
+                  _errorMsg = '';
+                  _workFromColor = Colors.black;
+                  _workToColor = Colors.black;
+                  _breakFromColor = Colors.black;
+                  _breakToColor = Colors.black;
                   Navigator.pop(context, _dataSent);
                 },
-                tooltip: "Löschen",
+                tooltip: "Zurück",
               )
-            : SizedBox(height: 0),
-      ],
-    ));
+            ]));
 
     return Scaffold(
         appBar: CustomAppBar.gone,

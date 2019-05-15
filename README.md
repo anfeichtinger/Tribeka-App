@@ -25,6 +25,7 @@ Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwe
 Weiters sind folgende Dependencies nicht in der pubspec.yaml zu finden, sondern im Verzeichnis "lib/widgets".
 * [**month_picker_strip:**](https://github.com/mahmed8003/month_picker_strip) Von mir verändert um das Aussehen anzupassen.
 * [**flutter_tags:**](https://github.com/Dn-a/flutter_tags) Von mir verändert um das Aussehen anzupassen sowie die LongPress Funktion zu verwenden.
+* [**flutter_slidable:**](https://pub.dev/packages/flutter_slidable) Von mir verändert um das Aussehen anzupassen.
 
 ## Screenshots
 Alle Screenshots finden sich im "Screenshots" Verzeichnis.
