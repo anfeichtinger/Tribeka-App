@@ -16,8 +16,8 @@ class StarterScreenState extends State<StarterScreen> {
   Future<Null> _tryAutoLogin() async {
     _autoLogin = await _storage.read(key: 'autologin') == '1';
     if (_autoLogin) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-          '/Month', (Route<dynamic> route) => false);
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/Month', (Route<dynamic> route) => false);
     } else {
       Navigator.of(context)
           .pushNamedAndRemoveUntil('/Login', (Route<dynamic> route) => false);
@@ -32,6 +32,6 @@ class StarterScreenState extends State<StarterScreen> {
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
 
     _tryAutoLogin();
-    return Scaffold();
+    return Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

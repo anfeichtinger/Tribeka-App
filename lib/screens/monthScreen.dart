@@ -8,10 +8,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tribeka/screens/AddShiftScreen.dart';
+import 'package:tribeka/screens/aboutMeScreen.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Shift.dart';
 import 'package:tribeka/util/ShiftRepository.dart';
-import 'package:tribeka/widgets/CustomAppBar.dart';
 import 'package:tribeka/widgets/MonthSummaryRow.dart';
 import 'package:tribeka/widgets/ShiftRow.dart';
 
@@ -190,14 +190,19 @@ class MonthScreenState extends State<MonthScreen> {
       _shiftRepo.clearMonthData(_selectedTime.subtract(Duration(days: 366)));
     }
     await _prepareUser(_shifts);
-    setState(() {
-      if (_loading != false) _loading = false;
-      if (_connected) {
+    if (_loading != false)
+      setState(() {
+        _loading = false;
+      });
+    if (_connected) {
+      setState(() {
         _monthEditable = edit;
-      } else {
+      });
+    } else {
+      setState(() {
         _monthEditable = false;
-      }
-    });
+      });
+    }
     if (_selectedTime.isAfter(DateTime.now().subtract(Duration(days: 366))) &&
         _selectedTime.isBefore(DateTime.now().add(Duration(days: 32)))) {
       _shiftRepo.persistMonthShifts(_selectedTime, _shifts, edit, _totalHours);
@@ -447,7 +452,23 @@ class MonthScreenState extends State<MonthScreen> {
     );
 
     return Scaffold(
-        appBar: CustomAppBar.dark,
+        appBar: AppBar(
+            automaticallyImplyLeading: false,
+            brightness: Brightness.dark,
+            backgroundColor: Colors.grey[850],
+            centerTitle: true,
+            title: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => AboutMeScreen()));
+                },
+                child: Text(
+                  "tribeka",
+                  style: TextStyle(
+                      fontFamily: 'Tribeka',
+                      fontSize: 30.0,
+                      color: Colors.white),
+                ))),
         backgroundColor: Colors.grey[100],
         floatingActionButton: _fab,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

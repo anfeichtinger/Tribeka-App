@@ -1,7 +1,7 @@
 name: tribeka
 description: Der schnellste und einfachste Weg deine Arbeitsstunden einzutragen.
 
-version: 1.0.0
+version: 1.0.1+1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -17,6 +17,8 @@ dependencies:
   intl: ^0.15.8
   material_design_icons_flutter: ^3.2.3595
   flutter_offline: "^0.2.4"
+  url_launcher: ^5.0.2
+  package_info: ^0.4.0+3
   flutter_picker:
     git: git://github.com/yangyxd/flutter_picker.git
 
