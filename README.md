@@ -32,7 +32,7 @@ Alle Screenshots finden sich im "Screenshots" Verzeichnis.
 
 Login                                              |  Übersicht                                          |  Vorlagen
 :-------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------------------:
-![Login Screen](./Screenshots/Presentation/0.jpg)  |  ![Month Screen](./Screenshots/Presentation/1.jpg)  |  ![Add Shift Screen](./Screenshots/Presentation/2.jpg)
+![Login Screen](./Screenshots/Android/0.jpg)  |  ![Month Screen](./Screenshots/Android/1.jpg)  |  ![Add Shift Screen](./Screenshots/Android/2.jpg)
 
 ## Wie kann ich bei einem Update meine lokale Kopie aktualisieren?
 
