@@ -11,7 +11,7 @@ Inhalt dieses Projektes ist eine auf dem Framework Flutter basierende App, welch
 
 Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwendet:
 
-* [**html:**](https://api.dartlang.org/stable/2.2.0/dart-html/dart-html-library.html) für das Parsen der HTML Response und somit für das Web-Scraping.
+* [**html:**](https://pub.dev/packages/html) für das Parsen der HTML Response und somit für das Web-Scraping.
 * [**dio:**](https://pub.dartlang.org/packages/dio) als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
 * [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) um sicherheitskritische Daten verschlüsselt zu speichern z.B Passwort
 * [**shared_preferences:**](https://pub.dartlang.org/packages/shared_preferences) um normale Daten zu speichern z.B Fertiggestellte Monate
