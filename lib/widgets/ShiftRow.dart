@@ -34,17 +34,20 @@ class ShiftRow extends StatelessWidget {
     final _isEmpty = _shift.workFrom == '-';
     final _hasComment = _shift.comment.isNotEmpty;
     final _hasBreak = _shift.breakFrom != '-';
+    final _isSick = _shift.place == 'krank';
 
-    if (_isEmpty)
-      return _getEmptyTile(context);
+    if (!_hasBreak && !_isEmpty)
+      return _getBreaklessTile(context);
     else if (_hasBreak && !_hasComment)
       return _getBreakTile(context);
     else if (!_hasBreak && _hasComment)
       return _getCommentTile(context);
     else if (_hasBreak && _hasComment)
       return _getBreakAndCommentTile(context);
-    else
-      return _getBreaklessTile(context);
+    else if (_isSick) {
+      return _getSickTile(context);
+    } else
+      return _getEmptyTile(context);
   }
 
   Widget _getBasicTile(BuildContext context,
@@ -66,7 +69,7 @@ class ShiftRow extends StatelessWidget {
         child: Card(
             elevation: 2,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             color: Colors.white,
             child: ListTile(
               onTap: () {
@@ -90,8 +93,7 @@ class ShiftRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                        '${_shift.weekday.substring(0, 2)}, ${_shift
-                            .workFrom} - ${_shift.workTo}',
+                        '${_shift.weekday.substring(0, 2)}, ${_shift.workFrom} - ${_shift.workTo}',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17)),
                     Text('${_shift.getHours()}h',
@@ -136,8 +138,50 @@ class ShiftRow extends StatelessWidget {
     return _getBasicTile(context, subtitle, true);
   }
 
+  Widget _getSickTile(BuildContext context,
+      [Widget subtitle, bool isThreeLine]) {
+    return Slidable(
+        delegate: SlidableBehindDelegate(),
+        actionExtentRatio: 0.22,
+        enabled: _editable ? true : false,
+        key: Key(_shift.day),
+        secondaryActions: <Widget>[
+          IconSlideAction(
+              color: Colors.red,
+              icon: MdiIcons.deleteOutline,
+              caption: 'Löschen',
+              onTap: () {
+                deleteCallback(_shift);
+              })
+        ],
+        child: Card(
+            color: Colors.grey[400],
+            elevation: 0,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ListTile(
+                leading: Hero(
+                    tag: _shift.day,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.grey[850],
+                      child: Text('${_shift.day}.',
+                          style: TextStyle(
+                              fontFamily: 'Tribeka',
+                              fontSize: 20.0,
+                              color: Colors.white)),
+                      minRadius: 18,
+                      maxRadius: 18,
+                    )),
+                title: Text(
+                  'Krank',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  _navigatorCallback(context);
+                })));
+  }
+
   Widget _getEmptyTile(BuildContext context) {
-    bool _isSick = _shift.place == 'krank';
     return Card(
         color: Colors.grey[400],
         elevation: 0,
@@ -155,17 +199,11 @@ class ShiftRow extends StatelessWidget {
                 minRadius: 18,
                 maxRadius: 18,
               )),
-          title: _isSick
-              ? Text(
-                  'Krank',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              : null,
-          onTap: _isSick
-              ? () {
-                  _navigatorCallback(context);
-                }
-              : () {},
+          title: Text(
+            '',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          onTap: () {},
         ));
   }
 }
