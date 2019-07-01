@@ -36,18 +36,19 @@ class ShiftRow extends StatelessWidget {
     final _hasBreak = _shift.breakFrom != '-';
     final _isSick = _shift.place == 'krank';
 
-    if (!_hasBreak && !_isEmpty)
-      return _getBreaklessTile(context);
-    else if (_hasBreak && !_hasComment)
-      return _getBreakTile(context);
-    else if (!_hasBreak && _hasComment)
-      return _getCommentTile(context);
-    else if (_hasBreak && _hasComment)
-      return _getBreakAndCommentTile(context);
-    else if (_isSick) {
+    if (_isSick) {
       return _getSickTile(context);
-    } else
+    } else if (_hasBreak && _hasComment) {
+      return _getBreakAndCommentTile(context);
+    } else if (!_hasBreak && _hasComment) {
+      return _getCommentTile(context);
+    } else if (_hasBreak && !_hasComment) {
+      return _getBreakTile(context);
+    } else if (!_hasBreak && !_isEmpty) {
+      return _getBreaklessTile(context);
+    } else {
       return _getEmptyTile(context);
+    }
   }
 
   Widget _getBasicTile(BuildContext context,
