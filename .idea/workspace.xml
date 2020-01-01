@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f6daab65-5473-4971-9833-491f28c8b3ba" name="Default Changelist" comment="" />
+    <list default="true" id="f6daab65-5473-4971-9833-491f28c8b3ba" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/testapi.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/testapi.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,7 +20,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1VoHGEcPVu0qNsV0aib3fPi5d3W" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -30,7 +35,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="last_opened_file_path" value="D:/Program Files/Dart/dart-sdk" />
-    <property name="settings.editor.selected.configurable" value="dart.settings" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="ServiceViewManager">
@@ -56,6 +61,7 @@
       <option name="presentableId" value="Default" />
       <updated>1577912429869</updated>
       <workItem from="1577912433145" duration="8337000" />
+      <workItem from="1577921803298" duration="373000" />
     </task>
     <servers />
   </component>
@@ -67,13 +73,13 @@
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
     <state x="2366" y="454" key="FileChooserDialogImpl/0.0.3440.1400@0.0.3440.1400" timestamp="1577912505859" />
-    <state x="2087" y="342" key="SettingsEditor" timestamp="1577912513870">
+    <state x="2087" y="342" key="SettingsEditor" timestamp="1577921822604">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
-    <state x="2087" y="342" key="SettingsEditor/0.0.3440.1400@0.0.3440.1400" timestamp="1577912513870" />
-    <state x="2283" y="523" key="com.intellij.ide.util.TipDialog" timestamp="1577912433081">
+    <state x="2087" y="342" key="SettingsEditor/0.0.3440.1400@0.0.3440.1400" timestamp="1577921822604" />
+    <state x="2283" y="523" key="com.intellij.ide.util.TipDialog" timestamp="1577921803648">
       <screen x="0" y="0" width="3440" height="1400" />
     </state>
-    <state x="2283" y="523" key="com.intellij.ide.util.TipDialog/0.0.3440.1400@0.0.3440.1400" timestamp="1577912433081" />
+    <state x="2283" y="523" key="com.intellij.ide.util.TipDialog/0.0.3440.1400@0.0.3440.1400" timestamp="1577921803648" />
   </component>
 </project>
