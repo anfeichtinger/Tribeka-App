@@ -1,36 +1,16 @@
-name: tribeka
-description: Der schnellste und einfachste Weg deine Arbeitsstunden einzutragen.
-
-version: 1.0.2+19
+name: testapi
+description: An empty Aqueduct application.
+version: 0.0.1
+author: stable|kernel <jobs@stablekernel.com>
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.0.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-
+  aqueduct: ^3.0.0
   dio: ^2.1.3
   html: ^0.14.0+2
-  flutter_secure_storage: ^3.2.1+1
-  shared_preferences: ^0.5.2
-  intl: ^0.15.8
-  material_design_icons_flutter: ^3.2.3595
-  flutter_offline: ^0.2.4+1
-  url_launcher: ^5.0.2
-  package_info: ^0.4.0+3
-  flutter_picker: ^1.0.11
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-
-flutter:
-
-  assets:
-  - assets/
-
-  fonts:
-  - family: Tribeka
-    fonts:
-    - asset: fonts/Digital-Serial-ExtraBold-RegularItalic.ttf
+  test: ^1.0.0
+  aqueduct_test: ^1.0.0
