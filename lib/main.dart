@@ -90,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               _fetchTime = stopwatch.elapsed;
             });
+            debugPrint(_result.toString(), wrapWidth: 1024);
           }
         },
         tooltip: 'Fetch Data',
