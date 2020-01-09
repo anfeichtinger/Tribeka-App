@@ -188,7 +188,7 @@ class Fetcher {
     try {
       // TODO: Add Credentials here
       final result =
-          await _doFetch("testdummy.muster@gmail.com", "TestAccount1");
+          await _doFetch("email", "password");
       return result;
     } catch (NoSuchMethodError) {
       return "{}";
