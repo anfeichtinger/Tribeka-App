@@ -1,4 +1,8 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:tribeka_app/fetcher.dart';
 
 void main() => runApp(MyApp());
 
@@ -43,7 +47,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double _fetchTime = 0.0;
+  Duration _fetchTime = Duration();
+  Map<String, dynamic> _result = HashMap();
+  bool _showError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,16 +64,33 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'Time to fetch:',
             ),
-            Text(
-              _fetchTime.toString(),
-              style: Theme.of(context).textTheme.display1,
-            ),
+            _showError
+                ? Text('Error', style: TextStyle(color: Colors.red))
+                : Text(
+                    _fetchTime.toString(),
+                    style: Theme.of(context).textTheme.display1,
+                  ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //Todo: Fetch data and update state
+        onPressed: () async {
+          Fetcher fetcher = Fetcher();
+          Stopwatch stopwatch = Stopwatch();
+          stopwatch.start();
+          _result = jsonDecode(await fetcher.fetch());
+          if (_result.isEmpty) {
+            // Error
+            setState(() {
+              _showError = true;
+            });
+          } else {
+            // Success
+            stopwatch.stop();
+            setState(() {
+              _fetchTime = stopwatch.elapsed;
+            });
+          }
         },
         tooltip: 'Fetch Data',
         child: Icon(
