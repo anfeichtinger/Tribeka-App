@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           },
         ),
       ),
-      home: MyHomePage(title: 'Web Scraping Prototype'),
+      home: MyHomePage(title: 'Api Prototype'),
       debugShowCheckedModeBanner: false,
     );
   }

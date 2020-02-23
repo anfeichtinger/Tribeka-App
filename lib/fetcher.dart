@@ -28,8 +28,7 @@ class Fetcher {
     _dio.options.responseType = ResponseType.plain;
     _dio.interceptors.add(CookieManager(CookieJar()));
 
-    // TODO: Get URL for actual server for access outside of local network
-    baseURL = "http://10.0.2.2:8888";
+    baseURL = "http://tribeka.sytes.net";
     String _result = jsonDecode((await _dio.get(baseURL)).toString());
     return _result;
   }
