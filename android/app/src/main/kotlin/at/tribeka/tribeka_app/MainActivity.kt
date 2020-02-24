@@ -1,4 +1,4 @@
-package at.tribeka.tribeka_app
+package at.tribeka.scraping
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
