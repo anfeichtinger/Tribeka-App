@@ -376,7 +376,7 @@ class MonthScreenState extends State<MonthScreen> {
                       Icon(MdiIcons.pill)
                     ]),
                 content: Container(
-                    height: 180,
+                    height: 200,
                     child: Column(children: <Widget>[
                       Text('In diesem Monat krank melden von: '),
                       Picker(

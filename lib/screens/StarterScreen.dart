@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 
@@ -24,12 +25,18 @@ class StarterScreenState extends State<StarterScreen> {
     }
   }
 
+  Future<Null> _initDisplayMode() async {
+    await FlutterDisplayMode.setDeviceDefault();
+  }
+
   @override
   Widget build(BuildContext context) {
     Intl.defaultLocale = 'de_DE';
 
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
+
+    _initDisplayMode();
 
     _tryAutoLogin();
     return Scaffold(body: Center(child: CircularProgressIndicator()));

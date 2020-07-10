@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tribeka/services/Scraper.dart';
@@ -24,8 +23,8 @@ class Session {
 
   Session.internal() {
     _dio = Dio();
-    _dio.options.contentType = ContentType.parse(
-        "application/x-www-form-urlencoded; charset=ISO-8859-1");
+    _dio.options.contentType =
+        "application/x-www-form-urlencoded; charset=ISO-8859-1";
     _dio.options.responseType = ResponseType.plain;
     _dio.interceptors.add(CookieManager(CookieJar()));
     _dio.transformer = Latin1Transformer();

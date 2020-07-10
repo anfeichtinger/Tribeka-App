@@ -45,7 +45,7 @@ class Latin1Transformer extends DefaultTransformer {
   Future<String> transformRequest(RequestOptions options) async {
     var data = options.data ?? "";
     if (data is! String) {
-      if (options.contentType.mimeType == ContentType.json.mimeType) {
+      if (options.contentType.contains(ContentType.json.mimeType)) {
         return json.encode(options.data);
       } else if (data is Map) {
         // Was Transformer.urlEncodeMap(data);
