@@ -33,11 +33,11 @@ if (keystorePropertiesFile.exists()) {
 // To build for release use: flutter build appbundle
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         applicationId "at.tribeka.intra"
         minSdkVersion 18
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
