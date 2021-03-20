@@ -1,79 +1,79 @@
 # Tribeka-App
 
-## Was beinhaltet dieses Projekt?
+## Content of this Repository
 
-Dies ist das Git Repository für die **Projektarbeit/Bachlorarbeit** von **Andreas Feichtinger**, SWD17.
+This is the Git repository for the **Bachlor's Thesis** of **Andreas Feichtinger**, SWD17.
 
-Inhalt dieses Projektes ist eine auf dem Framework Flutter basierende App, welche es mobilen Geräten erlaubt die Arbeitsstunden in der Firma Tribeka festzuhalten.
-**Wichtig ist hierbei, dass es zwingend notwendig ist Zugang zu einem existierenden Account zu haben.** Da keine API zur Verfügung steht wird über die App mit dem Webserver kommuniziert, wobei die Response des Servers von der App analysiert wird. Mittels Web-Scraping werden die relevanten Daten extrahiert und zu leicht bearbeitbaren Objekten umgewandelt.
+The content of this project is a mobile application based on the framework Flutter, which allows users to record the working hours in the company Tribeka.
+**Since there is no API available, the app communicates with the web server and the response of the server is analyzed by  means of web scraping**. The relevant data is extracted and converted into Dart objects for further processing.
 
-**Ziel** dieses Projektes ist es, das Eintragen der Arbeitsstunden so einfach und schnell wie möglich abzuwickeln. Aus diesem Grund ist es möglich innerhalb der App selbst Vorlagen abzuspeichern, wodurch der Benutzer seine Arbeitszeiten innerhalb von wenigen Sekunden aufzeichnen kann.
+The **goal** of this project is to make the recording of working hours as easy and fast as possible. For this reason, it is possible to save templates within the app itself, allowing the user to record his working hours within a few seconds.
 
-Abgesehen von Flutter und Dart werden folgende Dependencies (pubspec.yaml) verwendet:
+Apart from Flutter and Dart, the following dependencies (pubspec.yaml) are used:
 
-* [**html:**](https://pub.dev/packages/html) für das Parsen der HTML Response und somit für das Web-Scraping.
-* [**dio:**](https://pub.dartlang.org/packages/dio) als HTTP-Client welcher sowohl mit Cookies als auch mit Fehlern umgehen kann.
-* [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) um sicherheitskritische Daten verschlüsselt zu speichern z.B Passwort
-* [**shared_preferences:**](https://pub.dartlang.org/packages/shared_preferences) um normale Daten zu speichern z.B Fertiggestellte Monate
-* [**intl:**](https://pub.dartlang.org/packages/intl) für die Übersetzung der Namen der Monate.
-* [**flutter_picker:**](https://pub.dev/packages/flutter_picker) für die Auswahl des Kalendertages, da die CupertinoPicker library dies noch nicht unterstützt.
-* [**material_design_icons_flutter:**](https://pub.dartlang.org/packages/material_design_icons_flutter) Um die Material Icons nutzen zu können (Bietet mehr Umfag als die in Flutter enthaltenen Material Icons)
-* [**flutter_offline:**](https://pub.dartlang.org/packages/flutter_offline) Um zu erkennen wenn keine Internetverbindung vorhandten ist.
-* [**url_launcher:**](https://pub.dev/packages/url_launcher) Zum öffnen von der Dialer, Email oder SMS App.
-* [**package_info:**](https://pub.dev/packages/package_info) Um auf Informationen über die App selbst (z.B Version) zugreifen zu können.
+* [**html:**](https://pub.dev/packages/html) for parsing the HTML response and thus for web scraping.
+* [**dio:**](https://pub.dartlang.org/packages/dio) as HTTP client which can handle both cookies and errors.
+* [**flutter_secure_storage:**](https://pub.dartlang.org/packages/flutter_secure_storage) to store sensitive data securely. e.g. password
+* [**shared_preferences:**](https://pub.dartlang.org/packages/shared_preferences) to store normal data. e.g. Completed months
+* [**intl:**](https://pub.dartlang.org/packages/intl) for the translation of the names of the months.
+* [**flutter_picker:**](https://pub.dev/packages/flutter_picker) for selecting the calendar day, since the CupertinoPicker library does not support this yet.
+* [**material_design_icons_flutter:**](https://pub.dartlang.org/packages/material_design_icons_flutter) to be able to use the Material Icons. (Provides wider scope than stock Material Icons included in Flutter)
+* [**flutter_offline:**](https://pub.dartlang.org/packages/flutter_offline) to detect when the app is connected to the internet.
+* [**url_launcher:**](https://pub.dev/packages/url_launcher) to open the dialer, email or SMS app.
+* [**package_info:**](https://pub.dev/packages/package_info) to access information about the app itself (e.g. version).
 
-Weiters sind folgende Dependencies nicht in der pubspec.yaml zu finden, sondern im Verzeichnis "lib/widgets".
-* [**month_picker_strip:**](https://github.com/mahmed8003/month_picker_strip) Von mir verändert um das Aussehen anzupassen.
-* [**flutter_tags:**](https://github.com/Dn-a/flutter_tags) Von mir verändert um das Aussehen anzupassen sowie die LongPress Funktion zu verwenden.
-* [**flutter_slidable:**](https://pub.dev/packages/flutter_slidable) Von mir verändert um das Aussehen anzupassen.
+Furthermore, the following dependencies are not found in pubspec.yaml, but in the "lib/widgets" directory, because they had to be modified.
+* [**month_picker_strip:**](https://github.com/mahmed8003/month_picker_strip) modified by me to match the theme.
+* [**flutter_tags:**](https://github.com/Dn-a/flutter_tags) modified by me to match the theme as well as to use the LongPress function.
+* [**flutter_slidable:**](https://pub.dev/packages/flutter_slidable) modified by me to match the theme.
 
 ## Screenshots
-Alle Screenshots finden sich im "Screenshots" Verzeichnis.
+More screenshots can be found in the "Screenshots" directory.
 
-Login                                              |  Übersicht                                          |  Vorlagen
+Login                                              |  Overview                                          |  Templates
 :-------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------------------:
 ![Login Screen](./Screenshots/Android/0.jpg)  |  ![Month Screen](./Screenshots/Android/1.jpg)  |  ![Add Shift Screen](./Screenshots/Android/2.jpg)
 
-## Wie kann ich bei einem Update meine lokale Kopie aktualisieren?
+## How do I update my local copy?
 
-* Falls eigene Änderungen vorhanden sind, diese speichern oder entfernen. Entfernen mit `git stash clear`.
-* Das Aktualisierte Repository herunterladen mit `git pull`.
-* Das Projekt öffnen und `flutter packages get && flutter packages upgrade` ausführen. (eventuell auch `flutter upgrade` um die aktuellste Version von Flutter zu installieren)
-* Eventuell die alte App unter iOS oder Android deinstallieren. Danach sollte man die aktuellste Version installieren und ausführen können.
+* If there are own changes, save or remove them. Remove with `git stash clear`.
+* Download the updated repository with `git pull`.
+* Open the project and run `flutter packages get && flutter packages upgrade`. (possibly also `flutter upgrade` to install the latest version of Flutter).
+* It may be necessary to uninstall the old app on iOS or Android. After that, you should be able to install and run the latest version.
 
-## Wie kann ich das Projekt öffnen und bearbeiten?
+## How can I open and edit the project?
 
-Es wird sowohl **Android Studio** mit zwei **Plugins (Dart** und **Flutter)** benötigt, sowie das **Framework Flutter**. Alle Teile funktioneren auf Windows, Linux und Mac OSX.
-Weitere Informationen zu den einzelnen Schritten sowie Schritte zur Problemlösung finden sich auf den jeweiligen Downloadseiten, welche ebenfalls verlinkt sind.
-Hier eine Schritt für Schritt Anleitung:
+Both **Android Studio** with two **Plugins (Dart** and **Flutter)** are required, as well as the **Framework Flutter**. All parts work on Windows, Linux and Mac OSX.
+More information about the individual steps as well as steps to solve problems can be found on the respective download pages, which are also linked.
+Here is a step by step guide:
 
-*  Die aktuellste Version von **Android Studio** herunterladen und installieren. Diese kann hier heruntergeladen werden: <https://developer.android.com/studio>
+*  Download and install the latest version of **Android Studio**. This can be downloaded here: <https://developer.android.com/studio>
 
-*  Die aktuellste Version von **Flutter** herunterladen und an einen beliebigen Ort entpacken. Flutter kann hier heruntergeladen werden: <https://flutter.dev/docs/get-started/install>
+*  Download the latest version of **Flutter** and unzip it to any location. Flutter can be downloaded here: <https://flutter.dev/docs/get-started/install>
 
-*  Flutter sollte jetzt zur **PATH Variable** hinzugefügt werden um das Framework problemlos zu nutzen. Unter Windows 10 funktioniert dies wie folgt:
-    * Drücken Sie die Tastenkombination *Win + R.*
-    * Schreiben Sie in das Feld: *"sysdm.cpl"* (ohne Anführungszeichen) und drücken Sie die *Enter* Taste.
-    * Den Reiter *"Erweitert"* auswählen und unten auf *"Umgebungsvariablen"* drücken.
-    * Hier unter Benutzervariablen *"PATH"* auswählen und auf bearbeiten drücken.
-    * Rechts auf die Schaltfläche *"Neu"* drücken und den Pfad zu Flutter einfügen: In meine Fall *"C:\Users\<Benutzername>\Documents\Android\flutter\bin"*
-    * Alle Fenster mit einem Druck auf *"OK"* bestätigen und nun sollte Flutter im *"PATH"* zur Verfügung stehen.
+*  Flutter should now be added to the **PATH variable** to use the framework without problems. Using Windows 10 this works as follows:
+    * Press the key combination *Win + R.*
+    * Write in the field: *"sysdm.cpl"* (without quotes) and press the *Enter* key.
+    * Select the *"Advanced"* tab and press *"Environment variables"* at the bottom.
+    * Here under user variables select *"PATH"* and press edit.
+    * Right click on the *"New"* button and paste the path to Flutter: In my case *"C:\Users\<username>\Documents\Android\flutter\bin"*.
+    * Confirm all windows by pressing *"OK"* and now Flutter should be available in *"PATH"*.
 
-*  Öffnen Sie nun ein neues Powershell oder CMD Fenster und führen Sie folgenden Befehl aus: `flutter doctor –android-licenses`
+*  Now open a new Powershell or CMD window and execute the following command: `flutter doctor -android-licenses`.
 
-*  Hier müssen alle Lizenzen für die Nutzung von Android und Flutter bestätigt werden, dies geschieht mit dem Drücken der *"Y"* Taste.
+*  Here all licenses for the use of Android and Flutter must be confirmed, this is done by pressing the *"Y"* key.
 
-*  Anschließend öffnen Sie Android Studio und führen, wenn notwendig, das First-Time Setup durch. Hierbei ist es wichtig, dass eine aktuelle Android SDK installiert wird.
+*  Then open Android Studio and, if necessary, perform the First-Time Setup. It is important that a current Android SDK is installed.
 
-*  Android Studio sollte nun als Fenster geöffnet sein. Klicken Sie hier am unteren Rand auf Konfigurieren und wählen Sie Plugins aus.
+*  Android Studio should now be open as a window. Here, click Configure at the bottom and select Plugins.
 
-*  Hier suchen Sie dann nach dem Plugin **Flutter**, wenn Sie dieses installieren, wird gefragt ob das Plugin **Dart** ebenso installiert werden soll. Lassen Sie dies zu.
+*  Here you can search for the plugin **Flutter**, when you install it, you will be asked if you want to install the plugin **Dart** as well. Allow this.
 
-*  Anschließend, sollte Android Studio neu gestartet werden. Nach dem Neustart kann man das geklonte Git-Repository öffnen. Gehen Sie dann unter Android Studio in die Kommandozeile.
+*  Afterwards, Android Studio should be restarted. After the restart, you can open the cloned Git repository. Then go to the command line under Android Studio.
 
-*  Geben sie hier den Befehl `flutter packages get` ein um die verwendeten Dependencies herunter zu laden. Danach sollte das Projekt vollständig funktionieren.
+*  Enter the command `flutter packages get` to download the used dependencies. After that the project should work fully.
 
-*  Es ist zu empfehlen vor dem Kompilieren unter Android Studio in der Kommandozeile den Befehl `flutter doctor` auszuführen um zu überprüfen, ob alles funktioniert hat.
+*  It is recommended to run the command `flutter doctor` in the command line before compiling under Android Studio to check if everything works as intended.
 
-### Hinweis:
-> *Dieses Projekt entsteht in Zusammenarbeit mit der Kaffehauskette Tribeka aus Graz sowie der FH JOANNEUM GmbH*
+### Notice:
+> *This project is developed in cooperation with the coffee house chain Tribeka from Graz and the FH JOANNEUM GmbH.*
