@@ -55,9 +55,9 @@ Here is a step by step guide:
     * Press the key combination *Win + R.*
     * Write in the field: *"sysdm.cpl"* (without quotes) and press the *Enter* key.
     * Select the *"Advanced"* tab and press *"Environment variables"* at the bottom.
-    * Here under user variables select *"PATH "* and press edit.
+    * Here under user variables select *"PATH"* and press edit.
     * Right click on the *"New"* button and paste the path to Flutter: In my case *"C:\Users\<username>\Documents\Android\flutter\bin"*.
-    * Confirm all windows by pressing *"OK "* and now Flutter should be available in *"PATH"*.
+    * Confirm all windows by pressing *"OK"* and now Flutter should be available in *"PATH"*.
 
 *  Now open a new Powershell or CMD window and execute the following command: `flutter doctor -android-licenses`.
 
