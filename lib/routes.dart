@@ -11,19 +11,19 @@ class Routes {
   };
 
   final theme = ThemeData(
-      primarySwatch: MaterialColor(
+      primarySwatch: const MaterialColor(
     0xFF333333,
-    const <int, Color>{
-      50: const Color(0xFFAAAAAA),
-      100: const Color(0xFF888888),
-      200: const Color(0xFF777777),
-      300: const Color(0xFF666666),
-      400: const Color(0xFF555555),
-      500: const Color(0xFF444444),
-      600: const Color(0xFF333333),
-      700: const Color(0xFF222222),
-      800: const Color(0xFF111111),
-      900: const Color(0xFF000000),
+    <int, Color>{
+      50: Color(0xFFAAAAAA),
+      100: Color(0xFF888888),
+      200: Color(0xFF777777),
+      300: Color(0xFF666666),
+      400: Color(0xFF555555),
+      500: Color(0xFF444444),
+      600: Color(0xFF333333),
+      700: Color(0xFF222222),
+      800: Color(0xFF111111),
+      900: Color(0xFF000000),
     },
   ));
 

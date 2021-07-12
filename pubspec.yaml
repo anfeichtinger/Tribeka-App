@@ -1,7 +1,7 @@
 name: tribeka
 description: Der schnellste und einfachste Weg deine Arbeitsstunden einzutragen.
 
-version: 1.0.3+27
+version: 1.0.3+36
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -26,6 +26,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^1.0.3
 
 flutter:
 

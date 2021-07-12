@@ -1,0 +1,857 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_picker/Picker.dart';
+import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:tribeka/services/init_time_generator.dart';
+import 'package:tribeka/services/validator.dart';
+import 'package:tribeka/util/globals.dart' as globals;
+import 'package:tribeka/util/shift.dart';
+import 'package:tribeka/util/shift_repository.dart';
+import 'package:tribeka/widgets/custom_app_bar.dart';
+import 'package:tribeka/widgets/custom_selectable_tags.dart';
+
+class AddShiftScreen extends StatefulWidget {
+  final DateTime _selectedTime;
+  final List<int> _presentDates;
+
+  AddShiftScreen(this._selectedTime, this._presentDates);
+
+  @override
+  State createState() {
+    return AddShiftScreenState(_selectedTime, _presentDates);
+  }
+}
+
+class AddShiftScreenState extends State<AddShiftScreen> {
+  final List<int> _presentDates;
+  static DateTime _now;
+  static Shift _shift;
+  static List<Tag> _templates;
+  static bool _dataSent = false;
+  static bool _valid = false;
+  static bool _showError = false;
+  static TextEditingController _commentController;
+  static String _errorMsg = '';
+
+  static Color _dayColor = Colors.black;
+  static Color _workFromColor = Colors.black;
+  static Color _workToColor = Colors.black;
+  static Color _breakFromColor = Colors.black;
+  static Color _breakToColor = Colors.black;
+
+  AddShiftScreenState(DateTime _selectedTime, this._presentDates) {
+    _now =
+        DateTime(_selectedTime.year, _selectedTime.month, DateTime.now().day);
+    _shift =
+        Shift(_now.day.toString(), '-', '-', '-', '-', globals.user.place, '');
+    while (_presentDates.contains(int.parse(_shift.day))) {
+      _shift.day = (int.parse(_shift.day) + 1).toString();
+    }
+  }
+
+  void _checkValid() {
+    if (_presentDates.contains(int.parse(_shift.day))) {
+      setState(() {
+        if (_showError) {
+          _valid = false;
+          _dayColor = Colors.red;
+          _workFromColor = Colors.black;
+          _workToColor = Colors.black;
+          _breakFromColor = Colors.black;
+          _breakToColor = Colors.black;
+        }
+        _errorMsg = 'Dieser Kalendertag ist bereits hinzugefügt worden';
+      });
+    } else {
+      ShiftStatus validationState = Validator.validateShift(_shift);
+      switch (validationState) {
+        case ShiftStatus.valid:
+          setState(() {
+            _valid = true;
+            _dayColor = Colors.black;
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.black;
+            _errorMsg = '';
+          });
+          break;
+        case ShiftStatus.workMissing:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.red;
+              _workToColor = Colors.red;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.black;
+            }
+            _errorMsg = 'Beide Arbeitszeiten werden benötigt';
+          });
+          break;
+        case ShiftStatus.breakFromMissing:
+        case ShiftStatus.breakToMissing:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.red;
+              _breakToColor = Colors.red;
+            }
+            _errorMsg = 'Beide oder keine Pausenzeiten werden benötigt';
+          });
+          break;
+        case ShiftStatus.workToBeforeWorkFrom:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.red;
+              _workToColor = Colors.red;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.black;
+            }
+            _errorMsg = 'Arbeitsbeginn muss vor Arbeitsende liegen';
+          });
+          break;
+        case ShiftStatus.breakToAfterWorkTo:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.red;
+            }
+            _errorMsg = 'Pausenbeginn darf nicht nach Arbeitsende liegen';
+          });
+          break;
+        case ShiftStatus.breakFromBeforeWorkFrom:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.red;
+              _breakToColor = Colors.black;
+            }
+            _errorMsg = 'Pausenbeginn darf nicht vor Arbeitsbeginn liegen';
+          });
+          break;
+        case ShiftStatus.breakFromAfterWorkTo:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.red;
+              _breakToColor = Colors.black;
+            }
+            _errorMsg = 'Pausenbeginn darf nicht nach Arbeitende liegen';
+          });
+          break;
+        case ShiftStatus.breakToBeforeWorkTo:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.red;
+            }
+            _errorMsg = 'Pausenende darf nicht nach Arbeitende liegen';
+          });
+          break;
+        case ShiftStatus.breakFromAfterBreakTo:
+          setState(() {
+            _valid = false;
+            if (_showError) {
+              _dayColor = Colors.black;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.red;
+              _breakToColor = Colors.red;
+            }
+            _errorMsg = 'Pausenende darf nicht vor Pausenbeginn liegen';
+          });
+          break;
+        default:
+          setState(() {
+            _valid = false;
+            _workFromColor = Colors.red;
+            _workToColor = Colors.red;
+            _breakFromColor = Colors.red;
+            _breakToColor = Colors.red;
+            _errorMsg = 'Generic Error';
+          });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark
+        .copyWith(statusBarIconBrightness: Brightness.dark));
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
+
+    _dataSent = false;
+    _valid = false;
+    _templates = [];
+
+    ShiftRepository().getTags().then((newList) {
+      setState(() {
+        _templates = newList;
+      });
+    });
+    _commentController = TextEditingController();
+
+    _commentController.text = _shift.comment;
+    _commentController.addListener(() {
+      _shift.comment = _commentController.text;
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Hide the FAB when the keyboard is open to avoid clipping
+    final bool _showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
+
+    Widget _buildBottomPicker(Widget picker) {
+      return Container(
+        height: 200.0,
+        padding: const EdgeInsets.only(top: 6.0),
+        color: CupertinoColors.white,
+        child: DefaultTextStyle(
+          style: const TextStyle(
+            color: CupertinoColors.black,
+            fontSize: 22.0,
+          ),
+          child: GestureDetector(
+            // Blocks taps from propagating to the modal sheet and popping.
+            onTap: () {},
+            child: SafeArea(
+              top: false,
+              child: picker,
+            ),
+          ),
+        ),
+      );
+    }
+
+    _applyTemplate(Tag tag) async {
+      tag.active = true;
+      Shift shift = await ShiftRepository().getPersistedTagShift(tag.title);
+
+      if (shift == null) {
+        setState(() {
+          _shift.workFrom = "-";
+          _shift.workTo = "-";
+          _shift.breakFrom = "-";
+          _shift.breakTo = "-";
+        });
+      } else {
+        setState(() {
+          _shift.workFrom = shift.workFrom;
+          _shift.workTo = shift.workTo;
+          _shift.breakFrom = shift.breakFrom;
+          _shift.breakTo = shift.breakTo;
+        });
+        _checkValid();
+      }
+    }
+
+    _addTag(String title) {
+      setState(() {
+        _templates.add(Tag(title: title));
+      });
+      ShiftRepository().persistTag(_shift, title);
+    }
+
+    _showTemplateInformationDialog() {
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16))),
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const <Widget>[
+                  Text("Vorlagen"),
+                  Icon(MdiIcons.informationOutline)
+                ]),
+            content: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              const Text(
+                  '...sind der schnellste Weg deine Stunden einzutragen. So geht\'s:'),
+              const SizedBox(height: 8),
+              Row(children: const <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Expanded(child: Text('Trag deine Zeiten oben ein.'))
+              ]),
+              Row(children: const <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Expanded(child: Text('Rechts unten Vorlage speichern.'))
+              ]),
+              Row(children: const <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Expanded(child: Text('Die Vorlage benennen.'))
+              ]),
+              Row(children: const <Widget>[
+                Icon(MdiIcons.circleSmall),
+                SizedBox(width: 8),
+                Expanded(child: Text('Auf OK drücken.'))
+              ]),
+              const SizedBox(height: 8),
+              Row(children: const <Widget>[
+                Icon(MdiIcons.fileDocumentEditOutline),
+                SizedBox(width: 8),
+                Expanded(
+                    child:
+                        Text('Auf die Vorlage drücken um diese anzuwenden.')),
+              ]),
+              const SizedBox(height: 8),
+              Row(
+                children: const <Widget>[
+                  Icon(MdiIcons.deleteOutline),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: Text(
+                          'Die Vorlage gedrückt halten um diese zu löschen'))
+                ],
+              )
+            ]),
+            actions: [
+              FlatButton(
+                  onPressed: () => Navigator.pop(context), child: const Text("OK")),
+            ],
+          );
+        },
+      );
+    }
+
+    _showPickerDate(BuildContext context) {
+      Picker(
+          textStyle: const TextStyle(fontSize: 24, color: Colors.black),
+          height: 200,
+          hideHeader: true,
+          columnPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          adapter: DateTimePickerAdapter(
+            value: _now.day.toString() == _shift.day
+                ? _now
+                : DateTime(_now.year, _now.month, int.parse(_shift.day)),
+            customColumnType: [2],
+          ),
+          onSelect: (Picker picker, int i, List value) {
+            setState(() {
+              _shift.day = (value.last + 1).toString();
+            });
+            _checkValid();
+          }).showModal<void>(context);
+    }
+
+    _showAddTemplatePrompt() async {
+      String _title = '';
+      bool valid = false;
+      final bool result = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16))),
+            title: const Text("Vorlage benennen"),
+            content: TextFormField(
+                autofocus: true,
+                autovalidate: true,
+                validator: (content) {
+                  String result = Validator.tagExists(_templates, content);
+                  valid = result == null;
+                  if (valid) {
+                    _title = content;
+                  }
+                  return result;
+                }),
+            actions: [
+              FlatButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("ABBRECHEN")),
+              FlatButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    if (valid) {
+                      Navigator.pop(context, true);
+                    }
+                  })
+            ],
+          );
+        },
+      );
+      if (result) {
+        _addTag(_title);
+      }
+    }
+
+    _adjustBreakTo(DateTime time) {
+      switch (time.minute) {
+        case 0:
+        case 15:
+          setState(() {
+            _shift.breakTo =
+                '${time.hour.toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
+          });
+          break;
+        case 30:
+          setState(() {
+            _shift.breakTo = '${(time.hour + 1).toString().padLeft(2, '0')}:00';
+          });
+          break;
+        case 45:
+          setState(() {
+            _shift.breakTo = '${(time.hour + 1).toString().padLeft(2, '0')}:15';
+          });
+          break;
+      }
+    }
+
+    _adjustWorkTo(DateTime time) {
+      switch (time.minute) {
+        case 0:
+        case 15:
+          int hour = time.hour + 7;
+          if (hour > 20) {
+            hour = 20;
+          }
+          setState(() {
+            _shift.workTo =
+                '${hour.toString().padLeft(2, '0')}:${(time.minute + 30).toString().padLeft(2, '0')}';
+          });
+          break;
+        case 30:
+          int hour = time.hour + 8;
+          if (hour > 20) {
+            hour = 20;
+          }
+          setState(() {
+            _shift.workTo = '${hour.toString().padLeft(2, '0')}:00';
+          });
+          break;
+        case 45:
+          int hour = time.hour + 8;
+          if (hour > 20) {
+            hour = 20;
+          }
+          setState(() {
+            _shift.workTo = '${hour.toString().padLeft(2, '0')}:15';
+          });
+          break;
+      }
+    }
+
+    // Will fade in the error Text if _showError is set to true
+    final _errorText = AnimatedOpacity(
+      opacity: _showError ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 300),
+      child: SizedBox(
+          width: MediaQuery.of(context).size.width / 3 + 10,
+          child: Text(
+            _errorMsg,
+            textAlign: TextAlign.right,
+            style: const TextStyle(color: Colors.red),
+          )),
+    );
+
+    final _header = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(DateFormat('MMMM, yyyy').format(_now),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 1, height: 32),
+              _errorText
+            ]));
+
+    final _dayTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.day = _now.day.toString();
+          });
+        },
+        onTap: () => _showPickerDate(context),
+        leading: Icon(MdiIcons.calendarToday,
+            color: _dayColor == Colors.black ? Colors.grey[800] : Colors.red),
+        title: Text('Kalendertag',
+            style: TextStyle(fontSize: 16, color: _dayColor)),
+        trailing: Text('${_shift.day}.',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 16, color: _dayColor)));
+
+    final _workFromTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.workFrom = '-';
+            _shift.workTo = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.workFrom(_now, _shift);
+          bool shouldSet = _shift.workTo == '-';
+          setState(() {
+            _shift.workFrom =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          if (shouldSet) {
+            _adjustWorkTo(_initial);
+          }
+          _checkValid();
+          showCupertinoModalPopup<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.workFrom =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    if (shouldSet) {
+                      _adjustWorkTo(newDateTime);
+                    }
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: Icon(MdiIcons.briefcaseOutline,
+            color:
+                _workFromColor == Colors.black ? Colors.grey[800] : Colors.red),
+        title: Text('Arbeit von',
+            style: TextStyle(fontSize: 16, color: _workFromColor)),
+        trailing: Text(_shift.workFrom,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _workFromColor)));
+
+    final _workToTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.workTo = '-';
+            _shift.workFrom = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.workTo(_now, _shift);
+          setState(() {
+            _shift.workTo =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          _checkValid();
+          showCupertinoModalPopup<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.workTo =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: const Icon(null),
+        title: Text('Arbeit bis',
+            style: TextStyle(fontSize: 16, color: _workToColor)),
+        trailing: Text(_shift.workTo,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _workToColor)));
+
+    final _breakFromTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.breakFrom = '-';
+            _shift.breakTo = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.breakFrom(_now, _shift);
+          setState(() {
+            _shift.breakFrom =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          _adjustBreakTo(_initial);
+          _checkValid();
+          showCupertinoModalPopup<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.breakFrom =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    _adjustBreakTo(newDateTime);
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: Icon(MdiIcons.coffeeOutline,
+            color: _breakFromColor == Colors.black
+                ? Colors.grey[800]
+                : Colors.red),
+        title: Text('Pause von',
+            style: TextStyle(fontSize: 16, color: _breakFromColor)),
+        trailing: Text(_shift.breakFrom,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _breakFromColor)));
+
+    final _breakToTile = ListTile(
+        onLongPress: () {
+          setState(() {
+            _shift.breakFrom = '-';
+            _shift.breakTo = '-';
+          });
+          _checkValid();
+        },
+        onTap: () {
+          final _initial = InitTimeGenerator.breakTo(_now, _shift);
+          setState(() {
+            _shift.breakTo =
+                '${_initial.hour.toString().padLeft(2, '0')}:${_initial.minute.toString().padLeft(2, '0')}';
+          });
+          _checkValid();
+          showCupertinoModalPopup<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return _buildBottomPicker(CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.time,
+                  initialDateTime: _initial,
+                  use24hFormat: true,
+                  minuteInterval: 15,
+                  onDateTimeChanged: (DateTime newDateTime) {
+                    setState(() {
+                      _shift.breakTo =
+                          '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}';
+                    });
+                    _checkValid();
+                  },
+                ));
+              });
+        },
+        leading: const Icon(null),
+        title: Text('Pause bis',
+            style: TextStyle(fontSize: 16, color: _breakToColor)),
+        trailing: Text(_shift.breakTo,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: _breakToColor)));
+
+    final _comment = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: TextField(
+            controller: _commentController,
+            keyboardType: TextInputType.text,
+            autofocus: false,
+            decoration: InputDecoration(
+              hintText: 'Kommentar',
+              icon: Icon(MdiIcons.commentOutline, color: Colors.grey[800]),
+              contentPadding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(32)),
+            )));
+
+    final _divider = SizedBox(
+        height: 1.0,
+        child: Center(
+            child: Container(
+                margin: const EdgeInsetsDirectional.only(start: 32.0, end: 32.0),
+                height: 1.0,
+                color: Colors.grey[500])));
+
+    Widget _getTagWidgets() {
+      if (_templates.isEmpty) {
+        return Padding(
+            padding: const EdgeInsets.all(8),
+            child: InkWell(
+                onTap: () => _showTemplateInformationDialog(),
+                child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: const <Widget>[
+                        Text('Keine Vorlagen gefunden',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        SizedBox(height: 8),
+                        Icon(MdiIcons.informationOutline)
+                      ],
+                    ))));
+      } else {
+        return Stack(children: <Widget>[
+          Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: SelectableTags(
+                tags: _templates,
+                backgroundContainer: Colors.transparent,
+                activeColor: Colors.grey[800],
+                onPressed: (tag) {
+                  _applyTemplate(tag);
+                },
+                onLongPressed: (tag) {
+                  setState(() {
+                    _templates.remove(tag);
+                  });
+                  ShiftRepository().deletePersistedTag(tag.title);
+                },
+              )),
+          Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                  onPressed: () => _showTemplateInformationDialog(),
+                  icon: const Icon(MdiIcons.informationOutline))),
+        ]);
+      }
+    }
+
+    final _fab = _showFab
+        ? FloatingActionButton.extended(
+            elevation: 4.0,
+            backgroundColor: _valid ? Colors.grey[850] : Colors.grey[600],
+            icon: const Icon(MdiIcons.cloudUploadOutline),
+            label: const Text('Senden'),
+            onPressed: _valid
+                ? () async {
+                    await globals.session.sendShift(_now, _shift);
+                    _dataSent = true;
+                    _valid = false;
+                    _showError = false;
+                    Navigator.pop(context, _dataSent);
+                  }
+                : () {
+                    setState(() {
+                      _showError = true;
+                    });
+                    _checkValid();
+                  },
+          )
+        : const SizedBox(height: 0);
+
+    final _bottomNavBar = BottomAppBar(
+        child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        IconButton(
+          icon: const Icon(MdiIcons.arrowLeft),
+          onPressed: () {
+            _dataSent = false;
+            _valid = false;
+            _showError = false;
+            _dayColor = Colors.black;
+            _workFromColor = Colors.black;
+            _workToColor = Colors.black;
+            _breakFromColor = Colors.black;
+            _breakToColor = Colors.black;
+            Navigator.pop(context, _dataSent);
+          },
+          tooltip: "Zurück",
+        ),
+        IconButton(
+            icon: const Icon(MdiIcons.contentSaveOutline),
+            onPressed: () async {
+              if (_valid) {
+                _showAddTemplatePrompt();
+              } else {
+                setState(() {
+                  _showError = true;
+                });
+                _checkValid();
+              }
+            },
+            tooltip: "Vorlage speichern"),
+      ],
+    ));
+
+    return Scaffold(
+        appBar: CustomAppBar.gone,
+        bottomNavigationBar: _bottomNavBar,
+        floatingActionButton: _fab,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        backgroundColor: Colors.grey[50],
+        body: WillPopScope(
+            onWillPop: () {
+              _dataSent = false;
+              _valid = false;
+              _showError = false;
+              _templates = null;
+              _workFromColor = Colors.black;
+              _workToColor = Colors.black;
+              _breakFromColor = Colors.black;
+              _breakToColor = Colors.black;
+              Navigator.pop(context, _dataSent);
+            },
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: <Widget>[
+                      const SizedBox(height: 34),
+                      _header,
+                      const SizedBox(height: 22),
+                      _dayTile,
+                      const SizedBox(height: 9.5),
+                      _divider,
+                      const SizedBox(height: 9.5),
+                      _workFromTile,
+                      _workToTile,
+                      const SizedBox(height: 9.5),
+                      _divider,
+                      const SizedBox(height: 9.5),
+                      _breakFromTile,
+                      _breakToTile,
+                      const SizedBox(height: 10),
+                      _comment,
+                      _getTagWidgets(),
+                      const SizedBox(height: 24),
+                    ]))));
+  }
+}
