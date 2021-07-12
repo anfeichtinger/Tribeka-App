@@ -2,7 +2,6 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tribeka/services/Scraper.dart';
 import 'package:tribeka/util/Globals.dart' as globals;
 import 'package:tribeka/util/Latin1Transformer.dart';
@@ -42,7 +41,7 @@ class Session {
 
   // Tribeka specific functionality
   final baseURL = "http://intra.tribeka.at/";
-  final _storage = FlutterSecureStorage();
+  final _storage = ShiftRepository();
   final _scrapper = Scrapper();
   int lastAvailYear;
 
@@ -60,10 +59,10 @@ class Session {
           await _get(baseURL + 'stunden/');
           if (_response.statusCode == 200) {
             if (_saveLogin) {
-              _storage.write(key: 'autologin', value: '1');
+              _storage.persistAutologin(true);
             }
-            _storage.write(key: 'email', value: _email);
-            _storage.write(key: 'password', value: _password);
+            _storage.persistEmail(_email);
+            _storage.persistPassword(_password);
             _scrapper.generateUserId(_response);
             return true;
           } else {
@@ -80,8 +79,8 @@ class Session {
   }
 
   Future<Null> autoLogin(BuildContext _context) async {
-    final _email = await _storage.read(key: 'email');
-    final _password = await _storage.read(key: 'password');
+    final _email = await _storage.getEmail();
+    final _password = await _storage.getPassword();
     try {
       await _post(baseURL + "login/", {
         "pEmail": _email,
@@ -110,8 +109,8 @@ class Session {
 
   // When there is a Session Timeout, automatically login and go into correct month again
   Future<Null> _loginOnExpiration() async {
-    final _email = await _storage.read(key: 'email');
-    final _password = await _storage.read(key: 'password');
+    final _email = await _storage.getEmail();
+    final _password = await _storage.getPassword();
     try {
       await _post(baseURL + "login/", {
         "pEmail": _email,
@@ -162,7 +161,7 @@ class Session {
 
   void logout() async {
     ShiftRepository().clearAppData();
-    _storage.deleteAll();
+    await _storage.deleteAll();
     await _get(baseURL);
   }
 

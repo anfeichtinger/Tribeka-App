@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:flutter_picker/Picker.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -26,7 +25,7 @@ class MonthScreen extends StatefulWidget {
 
 class MonthScreenState extends State<MonthScreen> {
   final _session = globals.session;
-  final _storage = FlutterSecureStorage();
+  final _storage = ShiftRepository();
   final _shiftRepo = ShiftRepository();
   DateFormat dateFormat;
   DateTime _selectedTime = DateTime.now();
@@ -102,7 +101,7 @@ class MonthScreenState extends State<MonthScreen> {
                     child: Text("OK"),
                     onPressed: () {
                       Navigator.pop(context);
-                      _storage.write(key: 'place', value: globals.user.place);
+                      _storage.persistPlace(globals.user.place);
                     })
               ],
             ));
@@ -112,7 +111,7 @@ class MonthScreenState extends State<MonthScreen> {
 
   Future<Null> _prepareUser(List<Shift> shifts) async {
     if (globals.user.place == null || globals.user.place.isEmpty) {
-      String place = await _storage.read(key: 'place');
+      String place = await _storage.getPlace();
       if (place == null || place.isEmpty) {
         if (shifts.isNotEmpty) {
           List<String> places = [];
@@ -126,8 +125,8 @@ class MonthScreenState extends State<MonthScreen> {
           });
           if (places.length == 1) {
             globals.user.place = places[0];
-            if (await _storage.read(key: 'place') != globals.user.place) {
-              _storage.write(key: 'place', value: globals.user.place);
+            if (await _storage.getPlace() != globals.user.place) {
+              _storage.persistPlace(globals.user.place);
             }
           } else {
             await _showPlacePickerPrompt();
@@ -360,12 +359,8 @@ class MonthScreenState extends State<MonthScreen> {
       showDialog(
           context: context,
           builder: (BuildContext context) {
-            int from = DateTime
-                .now()
-                .day;
-            int to = DateTime
-                .now()
-                .day;
+            int from = DateTime.now().day;
+            int to = DateTime.now().day;
             return AlertDialog(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16))),
@@ -381,11 +376,11 @@ class MonthScreenState extends State<MonthScreen> {
                       Text('In diesem Monat krank melden von: '),
                       Picker(
                           textStyle:
-                          TextStyle(fontSize: 24, color: Colors.black),
+                              TextStyle(fontSize: 24, color: Colors.black),
                           height: 70,
                           hideHeader: true,
                           columnPadding:
-                          EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                           adapter: DateTimePickerAdapter(
                               value: DateTime.now(), customColumnType: [2]),
                           onSelect: (Picker picker, int i, List value) {
@@ -394,11 +389,11 @@ class MonthScreenState extends State<MonthScreen> {
                       Text('bis:'),
                       Picker(
                           textStyle:
-                          TextStyle(fontSize: 24, color: Colors.black),
+                              TextStyle(fontSize: 24, color: Colors.black),
                           height: 70,
                           hideHeader: true,
                           columnPadding:
-                          EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                              EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                           adapter: DateTimePickerAdapter(
                               value: DateTime.now(), customColumnType: [2]),
                           onSelect: (Picker picker, int i, List value) {
@@ -552,8 +547,8 @@ class MonthScreenState extends State<MonthScreen> {
                                         _shifts.elementAt(index),
                                         _selectedTime,
                                         _monthEditable,
-                                    _loadMonthData,
-                                    _deleteCallback);
+                                        _loadMonthData,
+                                        _deleteCallback);
                               }),
                 )
               ],

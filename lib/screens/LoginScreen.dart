@@ -226,11 +226,8 @@ class LoginScreenState extends State<LoginScreen> {
     return Scaffold(
         backgroundColor: Colors.white,
         body: OfflineBuilder(
-            connectivityBuilder: (
-              BuildContext context,
-              ConnectivityResult connectivity,
-              Widget child,
-            ) {
+            connectivityBuilder: (BuildContext context,
+                ConnectivityResult connectivity, Widget child) {
               _connected = connectivity != ConnectivityResult.none;
               return Stack(
                 alignment: Alignment.bottomCenter,
@@ -253,6 +250,6 @@ class LoginScreenState extends State<LoginScreen> {
                 ],
               );
             },
-            child: Text('')));
+            child: SizedBox()));
   }
 }

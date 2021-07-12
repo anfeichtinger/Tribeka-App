@@ -1,16 +1,78 @@
 import 'dart:convert';
 
+import 'package:encrypt/encrypt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tribeka/util/Shift.dart';
 import 'package:tribeka/widgets/CustomSelectableTags.dart';
 
 class ShiftRepository {
-  SharedPreferences _prefs;
+  static SharedPreferences _prefs;
+  final String _encryptionKey = "GEz6dfizuEMU3orMRGRsLtSn3jgKjoQf";
+  static Encrypter _encrypter;
 
   Future<Null> _createInstance() async {
     if (_prefs == null) {
       _prefs = await SharedPreferences.getInstance();
     }
+    if (_encrypter == null) {
+      _encrypter = Encrypter(AES(Key.fromUtf8(_encryptionKey)));
+    }
+  }
+
+  //
+  // Autologin
+  //
+
+  Future<bool> getAutologin() async {
+    await _createInstance();
+    return _prefs.getBool("autologin");
+  }
+
+  Future<bool> persistAutologin(bool autologin) async {
+    await _createInstance();
+    await _prefs.setBool("autologin", autologin);
+    return getAutologin();
+  }
+
+  //
+  // Place
+  //
+
+  Future<String> getPlace() async {
+    await _createInstance();
+    return _prefs.getString("place");
+  }
+
+  Future<String> persistPlace(String place) async {
+    await _createInstance();
+    await _prefs.setString("place", place);
+    return getPlace();
+  }
+
+  //
+  // Email & Password
+  //
+
+  Future<String> getEmail() async {
+    await _createInstance();
+    return _prefs.getString("email");
+  }
+
+  Future<String> persistEmail(String email) async {
+    await _createInstance();
+    await _prefs.setString("email", email);
+    return getEmail();
+  }
+
+  Future<String> getPassword() async {
+    await _createInstance();
+    return _encrypter.decrypt64(_prefs.getString("pass"));
+  }
+
+  Future<String> persistPassword(String pw) async {
+    await _createInstance();
+    await _prefs.setString("pass", _encrypter.encrypt(pw).base64);
+    return getPassword();
   }
 
   //
@@ -189,5 +251,10 @@ class ShiftRepository {
         _prefs.remove(key);
       }
     });
+  }
+
+  Future<Null> deleteAll() async {
+    await _createInstance();
+    await _prefs.clear();
   }
 }
